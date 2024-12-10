@@ -17,7 +17,6 @@ from linebot.v3.webhooks import (
     TextMessageContent,
     AudioMessageContent,
 )
-from linebot.v3.messaging import BlobApi
 import os
 from flask import Flask, request, abort, render_template
 from src.services.handle_audiomessage_service import AudioMessageHandler
@@ -47,6 +46,9 @@ app = Flask(__name__)
 configuration = Configuration(access_token=CHANNEL_ACCESS_TOKEN)
 handler = WebhookHandler(CHANNEL_SECRET)
 
+## APIインスタンス化
+with ApiClient(configuration) as api_client:
+    line_bot_api = MessagingApi(api_client)
 
 ## 起動確認用ウェブサイトのトップページ
 @app.route("/", methods=["GET"])
@@ -92,10 +94,6 @@ def callback():
 ## 友達追加時のメッセージ送信
 @handler.add(FollowEvent)
 def handle_follow(event):
-    ## APIインスタンス化
-    with ApiClient(configuration) as api_client:
-        line_bot_api = MessagingApi(api_client)
-
     ## 返信
     line_bot_api.reply_message(
         ReplyMessageRequest(
@@ -115,29 +113,17 @@ def handle_message(event):
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 def handle_voice(event):
-    # 音声データを取得
-    with ApiClient(configuration) as api_client:
-        blob_api = BlobApi(api_client)
-        message_content = blob_api.get_message_content(event.message.id)
-    # handle_audiomessage_service.pyで音声処理
-    response_text = audio_handler.process_audio_message(message_content)
+    audio_content = line_bot_api.get_message_content(event.message.id)
+    response_text = audio_handler.process_audio_message(audio_content)
     reply_message(event, [TextMessage(text=response_text)])
-
 
 def reply_message(event, messages):
     ## APIインスタンス化
-    with ApiClient(configuration) as api_client:
-        line_bot_api = MessagingApi(api_client)
     line_bot_api.reply_message(
         ReplyMessageRequest(replyToken=event.reply_token, messages=messages)
     )
 
-
 def defolt_message(event):
-    ## APIインスタンス化
-    with ApiClient(configuration) as api_client:
-        line_bot_api = MessagingApi(api_client)
-
     ## 受信メッセージの中身を取得
     received_message = event.message.text
 
