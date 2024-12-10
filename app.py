@@ -115,7 +115,7 @@ def handle_voice(event):
     # 音声データを取得
     with ApiClient(configuration) as api_client:
         messaging_api = MessagingApi(api_client)
-        message_content = messaging_api.get_message_content(event.message.id
+        message_content = messaging_api.get_message_content(event.message.id)
     # handle_audiomessage_service.pyで音声処理
     response_text = audio_handler.process_audio_message(message_content)
     reply_message(event, [TextMessage(text=response_text)])
