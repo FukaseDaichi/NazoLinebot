@@ -8,6 +8,7 @@ from linebot.v3.messaging import (
     ReplyMessageRequest,
     PushMessageRequest,
     TextMessage,
+    MessagingApiBlob,
     PostbackAction,
 )
 from linebot.v3.webhooks import (
@@ -17,6 +18,7 @@ from linebot.v3.webhooks import (
     TextMessageContent,
     AudioMessageContent,
 )
+
 import os
 from flask import Flask, request, abort, render_template
 from src.services.handle_audiomessage_service import AudioMessageHandler
@@ -33,9 +35,6 @@ load_dotenv()
 CHANNEL_ACCESS_TOKEN = os.environ["CHANNEL_ACCESS_TOKEN"]
 CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
 
-print(CHANNEL_ACCESS_TOKEN)
-print(CHANNEL_SECRET)
-
 # AudioMessageHandlerの初期化
 audio_handler = AudioMessageHandler("./lib/model/vosk-model-small-ja-0.22")
 
@@ -49,6 +48,7 @@ handler = WebhookHandler(CHANNEL_SECRET)
 ## APIインスタンス化
 with ApiClient(configuration) as api_client:
     line_bot_api = MessagingApi(api_client)
+    line_bot_blob_api = MessagingApiBlob(api_client)
 
 ## 起動確認用ウェブサイトのトップページ
 @app.route("/", methods=["GET"])
@@ -113,8 +113,8 @@ def handle_message(event):
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 def handle_voice(event):
-    audio_content = line_bot_api.get_message_content(event.message.id)
-    response_text = audio_handler.process_audio_message(audio_content)
+    message_content = line_bot_blob_api.get_message_content(message_id=event.message.id)
+    response_text = audio_handler.process_audio_message(message_content)
     reply_message(event, [TextMessage(text=response_text)])
 
 def reply_message(event, messages):

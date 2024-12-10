@@ -5,10 +5,9 @@ from linebot.v3.messaging import (
 class Message:
     @staticmethod
     def create_message(__event, obj=None):
-
         # リストじゃない場合
         if type(obj) != list:
-            return TextMessage(text=obj)
+            return [TextMessage(text=obj)]
 
         messages = []
         for key in obj:
