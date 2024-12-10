@@ -1,5 +1,7 @@
 import json
-from linebot.models import TextSendMessage
+from linebot.v3.messaging import (
+    TextMessage,
+)
 import re
 import importlib
 
@@ -25,4 +27,4 @@ class HandlePostbackService:
                 )
 
         # なかった場合
-        return TextSendMessage(text="例外が発生しました。")
+        return TextMessage(text="例外が発生しました。")

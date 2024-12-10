@@ -1,4 +1,6 @@
-from linebot.models import TextSendMessage
+from linebot.v3.messaging import (
+    TextMessage,
+)
 
 class Message:
     @staticmethod
@@ -6,10 +8,10 @@ class Message:
 
         # リストじゃない場合
         if type(obj) != list:
-            return TextSendMessage(text=obj)
+            return TextMessage(text=obj)
 
         messages = []
         for key in obj:
-            messages.append(TextSendMessage(text=key))
+            messages.append(TextMessage(text=key))
 
         return messages

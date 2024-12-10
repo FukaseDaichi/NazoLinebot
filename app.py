@@ -17,6 +17,7 @@ from linebot.v3.webhooks import (
     TextMessageContent,
     AudioMessageContent,
 )
+from linebot.v3.messaging import BlobApi
 import os
 from flask import Flask, request, abort, render_template
 from src.services.handle_audiomessage_service import AudioMessageHandler
@@ -102,6 +103,7 @@ def handle_follow(event):
         )
     )
 
+
 ## テキストメッセージ
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
@@ -109,16 +111,18 @@ def handle_message(event):
     messages = HandleMessageService.generate_reply_message(event)
     reply_message(event, messages)
 
+
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 def handle_voice(event):
     # 音声データを取得
     with ApiClient(configuration) as api_client:
-        messaging_api = MessagingApi(api_client)
-        message_content = messaging_api.get_message_content(event.message.id)
+        blob_api = BlobApi(api_client)
+        message_content = blob_api.get_message_content(event.message.id)
     # handle_audiomessage_service.pyで音声処理
     response_text = audio_handler.process_audio_message(message_content)
     reply_message(event, [TextMessage(text=response_text)])
+
 
 def reply_message(event, messages):
     ## APIインスタンス化
@@ -155,8 +159,7 @@ if __name__ == "__main__":
 
 
 # エラーハンドラー
-def error_handler(event,message):
+def error_handler(event, message):
     if message:
         print(message)
-    reply_message(event,"例外が発生しました。")
-    
+    reply_message(event, "例外が発生しました。")
