@@ -107,15 +107,15 @@ def handle_follow(event):
 def handle_message(event):
     ## APIインスタンス化
     messages = HandleMessageService.generate_reply_message(event)
-    reply_message(event, [TextMessage(text=messages)])
+    reply_message(event, messages)
 
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 def handle_voice(event):
     # 音声データを取得
     with ApiClient(configuration) as api_client:
-        line_bot_api = MessagingApi(api_client)
-    message_content = line_bot_api.get_message_content(event.message.id)
+        messaging_api = MessagingApi(api_client)
+        message_content = messaging_api.get_message_content(event.message.id
     # handle_audiomessage_service.pyで音声処理
     response_text = audio_handler.process_audio_message(message_content)
     reply_message(event, [TextMessage(text=response_text)])
