@@ -42,7 +42,7 @@ class AudioMessageHandler:
 
             # m4aをWAVに変換
             subprocess.run(
-                ["ffmpeg", "-i", temp_audio_path, "-ar", "16000", "-ac", "1", wav_path],
+                ["ffmpeg", "-y", "-i", temp_audio_path, "-ar", "16000", "-ac", "1", wav_path],
                 check=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
