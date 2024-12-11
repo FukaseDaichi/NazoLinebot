@@ -61,9 +61,9 @@ class AudioMessageHandler:
             result = json.loads(recognizer.FinalResult())
             transcript = result.get("text", "")
 
-            # ひらがな変換
             if transcript:
-                return self._convert_to_hiragana(transcript)
+                #ひらがな変換する場合 self._convert_to_hiragana(transcript)
+                return transcript
             else:
                 return "音声を認識できませんでした。"
         except Exception as e:
