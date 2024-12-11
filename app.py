@@ -35,9 +35,6 @@ load_dotenv()
 CHANNEL_ACCESS_TOKEN = os.environ["CHANNEL_ACCESS_TOKEN"]
 CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
 
-# AudioMessageHandlerの初期化
-audio_handler = AudioMessageHandler("./lib/model/vosk-model-small-ja-0.22")
-
 ## Flask アプリのインスタンス化
 app = Flask(__name__)
 
@@ -49,6 +46,12 @@ handler = WebhookHandler(CHANNEL_SECRET)
 with ApiClient(configuration) as api_client:
     line_bot_api = MessagingApi(api_client)
     line_bot_blob_api = MessagingApiBlob(api_client)
+
+# AudioMessageHandlerの初期化
+audio_handler = AudioMessageHandler(
+    line_bot_api, line_bot_blob_api, "./lib/model/vosk-model-small-ja-0.22"
+)
+
 
 ## 起動確認用ウェブサイトのトップページ
 @app.route("/", methods=["GET"])
@@ -113,15 +116,16 @@ def handle_message(event):
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 def handle_voice(event):
-    message_content = line_bot_blob_api.get_message_content(message_id=event.message.id)
-    response_text = audio_handler.process_audio_message(message_content)
+    response_text = audio_handler.process_audio_message(event)
     reply_message(event, [TextMessage(text=response_text)])
+
 
 def reply_message(event, messages):
     ## APIインスタンス化
     line_bot_api.reply_message(
         ReplyMessageRequest(replyToken=event.reply_token, messages=messages)
     )
+
 
 def defolt_message(event):
     ## 受信メッセージの中身を取得

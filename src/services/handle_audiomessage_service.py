@@ -5,30 +5,43 @@ from vosk import Model
 from vosk import Model, KaldiRecognizer
 import pykakasi
 import json
+import tempfile
 
+## https://github.com/line/line-bot-sdk-python/blob/master/examples/flask-kitchensink/app.py
 class AudioMessageHandler:
-    def __init__(self, vosk_model_path):
+    def __init__(self, line_bot_api, line_bot_blob_api, vosk_model_path):
         # Voskモデルのロード
+        self.line_bot_api = line_bot_api
+        self.line_bot_blob_api = line_bot_blob_api
         self.model = Model(vosk_model_path)
         self.kakasi = pykakasi.kakasi()
 
-    def process_audio_message(self, audio_content):
+    def process_audio_message(self, event):
         """
         音声データを受け取り、文字起こし結果を返す
-        :param audio_content: LINE APIからの音声データ
+        :param event: LINE APIからのevent
         :return: 認識結果（ひらがな）
         """
+        message_content = self.line_bot_blob_api.get_message_content(
+            message_id=event.message.id
+        )
+
         # ユニークなファイル名を生成
         temp_audio_path = f"/tmp/{uuid.uuid4()}.amr"
         wav_path = f"/tmp/{uuid.uuid4()}.wav"
 
         try:
-            # 一時ファイルに保存
-            with open(temp_audio_path, "wb") as temp_audio_file:
-                for chunk in audio_content.iter_content():
+            # tempfileを使って一時ファイルを生成
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as temp_audio_file:
+                for chunk in message_content.iter_content():
                     temp_audio_file.write(chunk)
+                temp_audio_path = temp_audio_file.name
 
-            # AMRをWAVに変換
+            # WAVファイルパスもtempfileで生成
+            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_wav_file:
+                wav_path = temp_wav_file.name
+
+            # m4aをWAVに変換
             subprocess.run(
                 ["ffmpeg", "-i", temp_audio_path, "-ar", "16000", "-ac", "1", wav_path],
                 check=True,
