@@ -67,6 +67,8 @@ class AudioMessageHandler:
             else:
                 return "音声を認識できませんでした。"
         except Exception as e:
+            print(f"エラーが発生しました: {e}")
+            print(f"ffmpeg stderr: {e.stderr.decode()}") # ffmpegのエラー出力を表示
             return f"エラーが発生しました: {str(e)}"
         finally:
             # 一時ファイルを削除
