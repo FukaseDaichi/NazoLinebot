@@ -27,14 +27,13 @@ class AudioMessageHandler:
         )
 
         # ユニークなファイル名を生成
-        temp_audio_path = f"/tmp/{uuid.uuid4()}.amr"
+        temp_audio_path = f"/tmp/{uuid.uuid4()}.m4a"
         wav_path = f"/tmp/{uuid.uuid4()}.wav"
 
         try:
             # tempfileを使って一時ファイルを生成
             with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as temp_audio_file:
-                for chunk in message_content.iter_content():
-                    temp_audio_file.write(chunk)
+                temp_audio_file.write(message_content)
                 temp_audio_path = temp_audio_file.name
 
             # WAVファイルパスもtempfileで生成
