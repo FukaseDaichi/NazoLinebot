@@ -7,8 +7,12 @@ import pykakasi
 import json
 import tempfile
 
+
+
 ## https://github.com/line/line-bot-sdk-python/blob/master/examples/flask-kitchensink/app.py
 class AudioMessageHandler:
+    MAX_FILE_SIZE = 500 * 1024  # 500KB
+
     def __init__(self, line_bot_api, line_bot_blob_api, vosk_model_path):
         # Voskモデルのロード
         self.line_bot_api = line_bot_api
@@ -26,23 +30,41 @@ class AudioMessageHandler:
             message_id=event.message.id
         )
 
+         # ファイルサイズチェック
+        if len(message_content) > self.MAX_FILE_SIZE:
+            return "もっと短くしゃべってほしいな"
+        
         # ユニークなファイル名を生成
         temp_audio_path = f"/tmp/{uuid.uuid4()}.m4a"
         wav_path = f"/tmp/{uuid.uuid4()}.wav"
 
         try:
             # tempfileを使って一時ファイルを生成
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".m4a") as temp_audio_file:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".m4a"
+            ) as temp_audio_file:
                 temp_audio_file.write(message_content)
                 temp_audio_path = temp_audio_file.name
 
             # WAVファイルパスもtempfileで生成
-            with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_wav_file:
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".wav"
+            ) as temp_wav_file:
                 wav_path = temp_wav_file.name
 
             # m4aをWAVに変換
             subprocess.run(
-                ["ffmpeg", "-y", "-i", temp_audio_path, "-ar", "16000", "-ac", "1", wav_path],
+                [
+                    "ffmpeg",
+                    "-y",
+                    "-i",
+                    temp_audio_path,
+                    "-ar",
+                    "16000",
+                    "-ac",
+                    "1",
+                    wav_path,
+                ],
                 check=True,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -62,20 +84,23 @@ class AudioMessageHandler:
             transcript = result.get("text", "")
 
             if transcript:
-                #ひらがな変換する場合 self._convert_to_hiragana(transcript)
+                # ひらがな変換する場合 self._convert_to_hiragana(transcript)
                 return transcript
             else:
-                return "音声を認識できませんでした。"
+                return "音声認識結果が空です。クリアな音声で再試行してください。"
+        except subprocess.CalledProcessError as e:
+            stderr_output = e.stderr.decode(errors="ignore")
+            print(f"ffmpegエラー: {stderr_output}")
+            return "音声ファイルの変換中にエラーが発生しました。"
         except Exception as e:
-            print(f"エラーが発生しました: {e}")
-            print(f"ffmpeg stderr: {e.stderr.decode()}") # ffmpegのエラー出力を表示
             return f"エラーが発生しました: {str(e)}"
         finally:
-            # 一時ファイルを削除
-            if os.path.exists(temp_audio_path):
-                os.remove(temp_audio_path)
-            if os.path.exists(wav_path):
-                os.remove(wav_path)
+            for path in [temp_audio_path, wav_path]:
+                try:
+                    if os.path.exists(path):
+                        os.remove(path)
+                except Exception as cleanup_error:
+                    print(f"一時ファイル削除エラー: {cleanup_error}")
 
     def _convert_to_hiragana(self, text):
         """

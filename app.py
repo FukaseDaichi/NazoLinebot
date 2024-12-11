@@ -1,4 +1,3 @@
-from flask import Flask, request, abort
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.messaging import (
@@ -6,15 +5,12 @@ from linebot.v3.messaging import (
     Configuration,
     MessagingApi,
     ReplyMessageRequest,
-    PushMessageRequest,
     TextMessage,
     MessagingApiBlob,
-    PostbackAction,
 )
 from linebot.v3.webhooks import (
     FollowEvent,
     MessageEvent,
-    PostbackEvent,
     TextMessageContent,
     AudioMessageContent,
 )
@@ -60,16 +56,15 @@ def topPage():
 
 
 # 動作確認用
-@app.route("/test//<text>", methods=["GET"])
+@app.route("/test/<text>", methods=["GET"])
 def test(text):
     event = DictDotNotation({"message": DictDotNotation({"text": text})})
     messages = HandleMessageService.generate_reply_message(event)
-    print("こんいちは")
 
     if type(messages) == list:
-        return {"messages": [message.as_json_dict() for message in messages]}
+        return {"messages": [message.to_dict() for message in messages]}
 
-    return {"messages": [message.as_json_dict() for message in [messages]]}
+    return {"messages": [message.to_dict() for message in [messages]]}
 
 
 ## コールバック関数定義
@@ -108,26 +103,36 @@ def handle_follow(event):
 ## テキストメッセージ
 @handler.add(MessageEvent, message=TextMessageContent)
 def handle_message(event):
-    ## APIインスタンス化
-    messages = HandleMessageService.generate_reply_message(event)
-    reply_message(event, messages)
+    try:
+        messages = HandleMessageService.generate_reply_message(event)
+        reply_message(event, messages)
+    except Exception as e:
+        error_handler(event, e)
 
 
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 def handle_voice(event):
-    response_text = audio_handler.process_audio_message(event)
-    reply_message(event, [TextMessage(text=response_text)])
+    try:
+        response_text = audio_handler.process_audio_message(event)
+        reply_message(event, [TextMessage(text=response_text)])
+    except Exception as e:
+        error_handler(event, e)
 
 
 def reply_message(event, messages):
-    ## APIインスタンス化
-    line_bot_api.reply_message(
-        ReplyMessageRequest(replyToken=event.reply_token, messages=messages)
-    )
+    try:
+        if not isinstance(messages, list):
+            messages = [messages]
+        ## APIインスタンス化
+        line_bot_api.reply_message(
+            ReplyMessageRequest(replyToken=event.reply_token, messages=messages)
+        )
+    except Exception as e:
+        error_handler(event, e)
 
 
-def defolt_message(event):
+def default_message(event):
     ## 受信メッセージの中身を取得
     received_message = event.message.text
 
@@ -149,7 +154,6 @@ if __name__ == "__main__":
 
 
 # エラーハンドラー
-def error_handler(event, message):
-    if message:
-        print(message)
+def error_handler(event, e):
+    app.logger.error(f"Error sending reply message: {e}")
     reply_message(event, "例外が発生しました。")
