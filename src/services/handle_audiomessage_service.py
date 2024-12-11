@@ -7,9 +7,6 @@ import pykakasi
 import json
 import tempfile
 
-
-
-## https://github.com/line/line-bot-sdk-python/blob/master/examples/flask-kitchensink/app.py
 class AudioMessageHandler:
     MAX_FILE_SIZE = 500 * 1024  # 500KB
 
@@ -30,10 +27,10 @@ class AudioMessageHandler:
             message_id=event.message.id
         )
 
-         # ファイルサイズチェック
+        # ファイルサイズチェック
         if len(message_content) > self.MAX_FILE_SIZE:
             return "もっと短くしゃべってほしいな"
-        
+
         # ユニークなファイル名を生成
         temp_audio_path = f"/tmp/{uuid.uuid4()}.m4a"
         wav_path = f"/tmp/{uuid.uuid4()}.wav"
