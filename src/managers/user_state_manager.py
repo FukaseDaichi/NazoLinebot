@@ -18,9 +18,7 @@ class UserStateManager:
         self.external_manager = external_manager or self._default_external_manager
 
         # クリーンアップスレッドを起動
-        self.cleanup_thread = threading.Thread(
-            target=self._cleanup_task, daemon=True
-        )
+        self.cleanup_thread = threading.Thread(target=self._cleanup_task, daemon=True)
         self.cleanup_thread.start()
 
     def _default_external_manager(self, user_id):
@@ -31,6 +29,7 @@ class UserStateManager:
         """定期的に期限切れの状態をクリーンアップするタスク"""
         while not self.stop_event.is_set():
             try:
+                print("定期実行クリーアンプタスク")
                 self.cleanup_expired_states()
                 time.sleep(self.cleanup_interval)
             except Exception as e:

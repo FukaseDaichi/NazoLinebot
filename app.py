@@ -51,8 +51,8 @@ with ApiClient(configuration) as api_client:
 
 
 ## グローバル変数の初期化
-user_state_manager = UserStateManager()
 gas_manager = GASManager(GAS_API_URL)
+user_state_manager = UserStateManager(external_manager=gas_manager.get_user_name)
 
 ## handlerの初期化
 handle_message_service = HandleMessageService()
@@ -96,7 +96,7 @@ def before_handler(func):
         ## modeがないとき
         if state == None or "mode" not in state:
             user_state_manager.set_user_state(user_id, {"mode": "defolt"})
-        
+
         ## グローバルに格納
         g.state = user_state_manager.get_user_state(user_id)
         g.user_id = user_id
@@ -160,7 +160,7 @@ def handle_follow(event):
 ## テキストメッセージ
 @handler.add(MessageEvent, message=TextMessageContent)
 @before_handler
-def handle_message(event):
+def handle_message(event, __destination=None):
     try:
         messages = handle_message_service.generate_reply_message(event)
         reply_message(event, messages)
@@ -171,7 +171,7 @@ def handle_message(event):
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 @before_handler
-def handle_voice(event):
+def handle_voice(event, __destination=None):
     try:
         response_text = audio_handler.process_audio_message(event)
         reply_message(event, [TextMessage(text=response_text)])
