@@ -7,6 +7,7 @@ import pykakasi
 import json
 import tempfile
 
+
 class AudioMessageHandler:
     MAX_FILE_SIZE = 500 * 1024  # 500KB
 

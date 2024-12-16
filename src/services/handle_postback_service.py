@@ -10,7 +10,7 @@ class HandlePostbackService:
 
     # クラスリスト
     __postback_classList = json.load(
-        open(file="./lib/postbackClassList.json", mode="r", encoding="utf-8")
+        open(file="./lib/postbacks.json", mode="r", encoding="utf-8")
     )
 
     @staticmethod

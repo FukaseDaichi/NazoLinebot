@@ -16,11 +16,16 @@ from linebot.v3.webhooks import (
 )
 
 import os
-from flask import Flask, request, abort, render_template
+from flask import Flask, g, request, abort, render_template
+from src.managers.gas_manager import GASManager
+from src.managers.user_state_manager import UserStateManager
 from src.services.handle_audiomessage_service import AudioMessageHandler
 from src.services.handle_message_service import HandleMessageService
 from src.commonclass.dict_not_notetion import DictDotNotation
 from src.services.schedule import sched
+from functools import wraps
+from src.messages.messages_normal import Message as NormalMessage
+
 
 ## .env ファイル読み込み
 from dotenv import load_dotenv
@@ -30,6 +35,7 @@ load_dotenv()
 ## 環境変数を変数に割り当て
 CHANNEL_ACCESS_TOKEN = os.environ["CHANNEL_ACCESS_TOKEN"]
 CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
+GAS_API_URL = os.environ["GAS_API_URL"]
 
 ## Flask アプリのインスタンス化
 app = Flask(__name__)
@@ -43,10 +49,61 @@ with ApiClient(configuration) as api_client:
     line_bot_api = MessagingApi(api_client)
     line_bot_blob_api = MessagingApiBlob(api_client)
 
-# AudioMessageHandlerの初期化
+
+## グローバル変数の初期化
+user_state_manager = UserStateManager()
+gas_manager = GASManager(GAS_API_URL)
+
+## handlerの初期化
+handle_message_service = HandleMessageService()
 audio_handler = AudioMessageHandler(
     line_bot_api, line_bot_blob_api, "./lib/model/vosk-model-small-ja-0.22"
 )
+
+
+## 共通全体処理
+@app.before_request
+def before_request():
+    g.user_state_manager = user_state_manager
+    g.gas_manager = gas_manager
+
+
+def before_handler(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        event = args[0]  # イベントオブジェクトの取得
+
+        ## ユーザーIDの設定
+        user_id = event.source.user_id if hasattr(event, "source") else "default_id"
+
+        ## nameの取得
+        user_name = user_state_manager.get_user_name(user_id)
+
+        ## stateの取得
+        state = user_state_manager.get_user_state(user_id)
+
+        ## ユーザー名なし、かつmodeなしの場合、ユーザー名の設定へ
+        if user_name == None and state == None:
+            reply_message(
+                event,
+                NormalMessage.create_message(
+                    event, "初めまして!お名前を教えてください！"
+                ),
+            )
+            user_state_manager.set_user_state(user_id, {"mode": "set_user_name"})
+            return
+
+        ## modeがないとき
+        if state == None or "mode" not in state:
+            user_state_manager.set_user_state(user_id, {"mode": "defolt"})
+        
+        ## グローバルに格納
+        g.state = user_state_manager.get_user_state(user_id)
+        g.user_id = user_id
+
+        return func(*args, **kwargs)
+
+    return wrapper
 
 
 ## 起動確認用ウェブサイトのトップページ
@@ -59,7 +116,7 @@ def topPage():
 @app.route("/test/<text>", methods=["GET"])
 def test(text):
     event = DictDotNotation({"message": DictDotNotation({"text": text})})
-    messages = HandleMessageService.generate_reply_message(event)
+    messages = handle_message_service.generate_reply_message(event)
 
     if type(messages) == list:
         return {"messages": [message.to_dict() for message in messages]}
@@ -102,9 +159,10 @@ def handle_follow(event):
 
 ## テキストメッセージ
 @handler.add(MessageEvent, message=TextMessageContent)
+@before_handler
 def handle_message(event):
     try:
-        messages = HandleMessageService.generate_reply_message(event)
+        messages = handle_message_service.generate_reply_message(event)
         reply_message(event, messages)
     except Exception as e:
         error_handler(event, e)
@@ -112,6 +170,7 @@ def handle_message(event):
 
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
+@before_handler
 def handle_voice(event):
     try:
         response_text = audio_handler.process_audio_message(event)

@@ -1,8 +1,12 @@
 {
   "help": "src.messages.messages_help",
-  "test": "src.messages.messages_test",
+  "status": "src.messages.messages_status",
   "こん.*": "あらこんにちは",
-  "おはよう": ["おはようございます！コーヒーでもどうですか？", "どうですか？"],
+  "テストです": "あいうえお",
+  "おはよう": [
+    "おはようございます！コーヒーでもどうですか？",
+    "どうですか？"
+  ],
   "どうも": [
     "すみません、よくわかりませんでした。",
     "https://pythonlinebot.onrender.com/resources/img/share.png"

@@ -2,32 +2,51 @@ import json
 import re
 import importlib
 
+from flask import g
+
 from src.messages.messages_normal import Message as NormalMessage
+from src.messages.messages_set_user_name import Message as SetMessage
 
 
 class HandleMessageService:
 
-    # メッセージ辞書
-    __messagedict = json.load(
-        open(file="./lib/messagedict.json", mode="r", encoding="utf-8")
-    )
+    def __init__(self, message_dict_path="./lib/messages.json"):
+        """
+        HandleMessageServiceの初期化
+        :param message_dict_path: メッセージ辞書のパス
+        """
+        self.message_dict_path = message_dict_path
+        self.__load_message_dict()
 
-    @staticmethod
-    def generate_reply_message(event):
+    def __load_message_dict(self):
+        """
+        メッセージ辞書をロード
+        """
+        try:
+            with open(self.message_dict_path, mode="r", encoding="utf-8") as file:
+                self.__messagedict = json.load(file)
+        except Exception as e:
+            raise ValueError(f"Failed to load message dictionary: {e}")
 
+    def generate_reply_message(self, event):
+        
+        mode = g.state.get("mode")
+
+        ## ユーザー名設定の場合
+        if(mode == "set_user_name"):
+            return SetMessage.create_message(event)
+        
         # メッセージ辞書一致
-        for key in HandleMessageService.__messagedict:
+        for key, value in self.__messagedict.items():
             if re.compile(key).fullmatch(event.message.text):
-                matchData = HandleMessageService.__messagedict[key]
-                
                 #  クラスパスの場合
-                if type(matchData) is str and matchData.startswith("src.messages"):
-                    message_module = importlib.import_module(matchData)
+                if type(value) is str and value.startswith("src.messages"):
+                    message_module = importlib.import_module(value)
                     return message_module.Message.create_message(event)
 
-                return NormalMessage.create_message(
-                    event, HandleMessageService.__messagedict[key]
-                )
+                return NormalMessage.create_message(event, value)
 
         # なかった場合
-        return NormalMessage.create_message(event, "デフォルトメッセージ")
+        return NormalMessage.create_message(
+            event, g.user_state_manager.get_user_state(g.user_id).get("last_message")
+        )
