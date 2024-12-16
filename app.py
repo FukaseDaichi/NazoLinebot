@@ -76,14 +76,23 @@ def before_handler(func):
         ## ユーザーIDの設定
         user_id = event.source.user_id if hasattr(event, "source") else "default_id"
 
-        ## nameの取得
-        user_name = user_state_manager.get_user_name(user_id)
-
         ## stateの取得
         state = user_state_manager.get_user_state(user_id)
+        
+        ## modeがないとき
+        if state == None or "mode" not in state:
+            user_state_manager.set_user_state(user_id, {"mode": "defolt"})
+
+            ## nameの取得
+            user_name = user_state_manager.get_user_name(user_id)
+            
+            ## グローバルに格納
+            g.state = user_state_manager.get_user_state(user_id)
+            g.user_id = user_id
+            g.user_name = user_name
 
         ## ユーザー名なし、かつmodeなしの場合、ユーザー名の設定へ
-        if user_name == None and state == None:
+        if g.user_name == None:
             reply_message(
                 event,
                 NormalMessage.create_message(
@@ -92,14 +101,6 @@ def before_handler(func):
             )
             user_state_manager.set_user_state(user_id, {"mode": "set_user_name"})
             return
-
-        ## modeがないとき
-        if state == None or "mode" not in state:
-            user_state_manager.set_user_state(user_id, {"mode": "defolt"})
-
-        ## グローバルに格納
-        g.state = user_state_manager.get_user_state(user_id)
-        g.user_id = user_id
 
         return func(*args, **kwargs)
 

@@ -5,7 +5,7 @@ import importlib
 from flask import g
 
 from src.messages.messages_normal import Message as NormalMessage
-from src.messages.messages_set_user_name import Message as SetMessage
+from src.messages.messages_set_user_name import Message as SetUserNameMessage
 
 
 class HandleMessageService:
@@ -34,7 +34,7 @@ class HandleMessageService:
 
         ## ユーザー名設定の場合
         if(mode == "set_user_name"):
-            return SetMessage.create_message(event)
+            return SetUserNameMessage.create_message(event)
         
         # メッセージ辞書一致
         for key, value in self.__messagedict.items():

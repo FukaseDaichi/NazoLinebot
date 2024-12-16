@@ -4,8 +4,10 @@ from linebot.v3.messaging import (
     FlexBubble,
     FlexBox,
     FlexText,
+    Button,
     PostbackAction,
 )
+from urllib.parse import quote
 
 
 class Message:
@@ -15,6 +17,10 @@ class Message:
         if len(user_input) >= 11:
             return [TextMessage(text="長さは10文字以下で入力してください。")]
 
+        # 入力値をエンコード
+        user_input_encoded = quote(user_input)
+
+        # FlexBubbleの生成
         bubble = FlexBubble(
             body=FlexBox(
                 layout="vertical",
@@ -28,25 +34,23 @@ class Message:
             footer=FlexBox(
                 layout="horizontal",
                 contents=[
-                    FlexBox(
-                        layout="vertical",
-                        contents=[
-                            PostbackAction(
-                                label="Yes",
-                                data=f"action=confirm&user_input={user_input}",
-                                display_text="Yes",
-                            )
-                        ],
+                    Button(
+                        action=PostbackAction(
+                            label="Yes",
+                            data=f"action=confirm&user_input={user_input_encoded}",
+                            display_text="Yes",
+                        )
                     ),
-                    FlexBox(
-                        layout="vertical",
-                        contents=[
-                            PostbackAction(
-                                label="No", data="action=reject", display_text="No"
-                            )
-                        ],
+                    Button(
+                        action=PostbackAction(
+                            label="No",
+                            data="action=reject",
+                            display_text="No",
+                        )
                     ),
                 ],
             ),
         )
-        return [FlexMessage(alt_text="確認", contents=bubble)]
+
+        # FlexMessageの生成
+        return FlexMessage(alt_text="確認", contents=bubble)
