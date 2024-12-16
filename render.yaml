@@ -1,5 +1,0 @@
-services:
-  - type: redis
-    name: my-redis
-    plan: free
-    maxmemory_policy: allkeys-lru
