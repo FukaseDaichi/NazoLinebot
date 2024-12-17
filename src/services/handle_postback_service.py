@@ -41,4 +41,4 @@ class HandlePostbackService:
                 return NormalMessage.create_message(event, value)
 
         # なかった場合
-        return NormalMessage.create_message(event, "例外が発生しました")
+        return NormalMessage.create_message(event, event.postback.data)

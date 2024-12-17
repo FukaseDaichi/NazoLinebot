@@ -11,6 +11,7 @@ from urllib.parse import quote
 
 MAX_LENGTH = 10
 
+
 class Message:
     @staticmethod
     def create_message(event, obj=None):
@@ -22,7 +23,7 @@ class Message:
         user_input_encoded = quote(user_input)
 
         # FlexMessageのBubbleを定義
-         # FlexMessageのBubble構造を定義
+        # FlexMessageのBubble構造を定義
         bubble = FlexBubble(
             body=FlexBox(
                 layout="vertical",
@@ -42,17 +43,14 @@ class Message:
                         height="sm",
                         action=PostbackAction(
                             label="はい",
-                            data=f"action=confirm&user_input={user_input_encoded}"
-                        )
+                            data=f"action=register&user_input={user_input_encoded}",
+                        ),
                     ),
                     FlexButton(
                         height="sm",
-                        action=PostbackAction(
-                            label="いいえ",
-                            data="action=reject"
-                        )
+                        action=PostbackAction(label="いいえ", data="action=reject"),
                     ),
-                ]
+                ],
             ),
         )
 

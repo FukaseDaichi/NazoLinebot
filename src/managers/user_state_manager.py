@@ -29,7 +29,6 @@ class UserStateManager:
         """定期的に期限切れの状態をクリーンアップするタスク"""
         while not self.stop_event.is_set():
             try:
-                print("定期実行クリーアンプタスク")
                 self.cleanup_expired_states()
                 time.sleep(self.cleanup_interval)
             except Exception as e:
