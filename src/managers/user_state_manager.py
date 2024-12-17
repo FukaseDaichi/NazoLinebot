@@ -57,8 +57,17 @@ class UserStateManager:
         with self.lock:
             ttl = ttl or self.default_ttl
             expiration_time = time.time() + ttl
+
+            ## 既存のstate取得
+            pre_state = self.get_user_state(user_id)
+            if pre_state ==None:
+                pre_state ={}
+
+            # pre_stateを更新
+            pre_state.update(state)
+
             self.user_states[user_id] = {
-                "state": state,
+                "state": pre_state,
                 "expiration_time": expiration_time,
             }
 

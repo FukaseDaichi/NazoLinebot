@@ -15,9 +15,11 @@ class Message:
         user_input = unquote(user_input)
 
         ## 登録
-        g.user_state_manager.set_user_state(g.user_id, {"user_name": user_input})
+        g.user_state_manager.set_user_state(
+            g.user_id, {"user_name": user_input, "mode": "default"}
+        )
+        
         target = g.gas_manager.register_user
-        g.user_state_manager.set_user_state(g.user_id, {"mode": "default"})
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target, args=(g.user_id, user_input))
         thread.start()
