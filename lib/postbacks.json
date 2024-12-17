@@ -1,5 +1,5 @@
 {
   "action=": "src.messages.messages_get_randomquiz",
-  "action=reject": "否定",
-  "reject": "否定2"
+  "action=reject.*": "もう一度教えてください。",
+  "action=register.*": "src.messages.messages_register_user"
 }

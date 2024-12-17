@@ -13,10 +13,12 @@ from linebot.v3.webhooks import (
     MessageEvent,
     TextMessageContent,
     AudioMessageContent,
+    PostbackEvent,
 )
 
 import os
 from flask import Flask, g, request, abort, render_template
+from src.services.handle_postback_service import HandlePostbackService
 from src.managers.gas_manager import GASManager
 from src.managers.user_state_manager import UserStateManager
 from src.services.handle_audiomessage_service import AudioMessageHandler
@@ -25,7 +27,6 @@ from src.commonclass.dict_not_notetion import DictDotNotation
 from src.services.schedule import sched
 from functools import wraps
 from src.messages.messages_normal import Message as NormalMessage
-
 
 ## .env ファイル読み込み
 from dotenv import load_dotenv
@@ -49,13 +50,13 @@ with ApiClient(configuration) as api_client:
     line_bot_api = MessagingApi(api_client)
     line_bot_blob_api = MessagingApiBlob(api_client)
 
-
 ## グローバル変数の初期化
 gas_manager = GASManager(GAS_API_URL)
 user_state_manager = UserStateManager(external_manager=gas_manager.get_user_name)
 
 ## handlerの初期化
 handle_message_service = HandleMessageService()
+handle_postback_service = HandlePostbackService()
 audio_handler = AudioMessageHandler(
     line_bot_api, line_bot_blob_api, "./lib/model/vosk-model-small-ja-0.22"
 )
@@ -94,7 +95,7 @@ def before_handler(func):
             if user_name:
                 user_state_manager.set_user_state(user_id, {"user_name": user_name})
                 g.user_name = user_name
-        
+
         ## グローバルデータへ格納
         g.state = state
         g.user_id = user_id
@@ -212,6 +213,17 @@ def handle_voice(event, __destination=None):
         error_handler(event, e)
 
 
+## ポストバックハンドラー
+@handler.add(PostbackEvent)
+@before_handler
+def handle_message(event, __destination=None):
+    try:
+        messages = handle_postback_service.generate_reply_message(event)
+        reply_message(event, messages)
+    except Exception as e:
+        error_handler(event, e)
+
+
 def reply_message(event, messages):
     try:
         if not isinstance(messages, list):
@@ -248,4 +260,4 @@ if __name__ == "__main__":
 # エラーハンドラー
 def error_handler(event, e):
     app.logger.error(f"Error sending reply message: {e}")
-    reply_message(event, NormalMessage(event,"例外が発生しました"))
+    reply_message(event, NormalMessage(event, "例外が発生しました"))
