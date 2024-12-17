@@ -1,7 +1,4 @@
 import json
-from linebot.v3.messaging import (
-    TextMessage,
-)
 import re
 import importlib
 from src.messages.messages_normal import Message as NormalMessage
@@ -23,15 +20,14 @@ class HandlePostbackService:
         """
         try:
             with open(self.message_dict_path, mode="r", encoding="utf-8") as file:
-                raw_dict = json.load(file)
-            self.__postbacks = {re.compile(key): value for key, value in raw_dict.items()}
+                self.__postbacks = json.load(file)
         except Exception as e:
             raise ValueError(f"Failed to load message dictionary: {e}")
 
     def generate_reply_message(self, event):
         # クラスリスト一致検索
-        for regex, value in self.__postbacks:
-            if regex.fullmatch(event.postback.data):
+        for key, value in self.__postbacks:
+            if re.compile(key).fullmatch(event.postback.data):
 
                 ## クラスの場合
                 if type(value) is str and value.startswith("src.messages"):

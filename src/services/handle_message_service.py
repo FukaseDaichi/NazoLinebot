@@ -24,8 +24,7 @@ class HandleMessageService:
         """
         try:
             with open(self.message_dict_path, mode="r", encoding="utf-8") as file:
-                raw_dict = json.load(file)
-            self.__messagedict = {re.compile(key): value for key, value in raw_dict.items()}
+                self.__messagedict = json.load(file)
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON format in message dictionary: {e}")
 
@@ -38,8 +37,8 @@ class HandleMessageService:
             return SetUserNameMessage.create_message(event)
 
         # メッセージ辞書一致
-        for regex, value in self.__messagedict.items():
-            if regex.fullmatch(event.message.text):
+        for key, value in self.__messagedict.items():
+            if re.compile(key).fullmatch(event.message.text):
                 #  クラスパスの場合
                 if type(value) is str and value.startswith("src.messages"):
                     message_module = importlib.import_module(value)
