@@ -1,3 +1,5 @@
 {
-  "randomquiz": "src.messages.messages_get_randomquiz"
+  "randomquiz": "src.messages.messages_get_randomquiz",
+  "action=reject": "否定",
+  "reject": "否定2"
 }
