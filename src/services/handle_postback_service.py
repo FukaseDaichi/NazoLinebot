@@ -26,14 +26,14 @@ class HandlePostbackService:
 
     def generate_reply_message(self, event):
         # クラスリスト一致検索
-        for key, value in self.__postbacks:
+        for key, value in self.__postbacks.items():
             if re.compile(key).fullmatch(event.postback.data):
 
                 ## クラスの場合
                 if type(value) is str and value.startswith("src.messages"):
                     message_module = importlib.import_module(value)
                     return message_module.Message.create_message(event, value)
-                
+
                 return NormalMessage.create_message(event, value)
 
         # なかった場合

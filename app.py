@@ -148,9 +148,11 @@ def test(text):
                 user_state_manager.set_user_state(user_id, {"user_name": user_name})
                 g.user_name = user_name
 
-    print(g.state)
-    event = DictDotNotation({"message": DictDotNotation({"text": text})})
-    messages = handle_message_service.generate_reply_message(event)
+    ##event = DictDotNotation({"message": DictDotNotation({"text": text})})
+    ##messages = handle_message_service.generate_reply_message(event)
+
+    event = DictDotNotation({"postback": DictDotNotation({"data": text})})
+    messages = handle_postback_service.generate_reply_message(event)
 
     if type(messages) == list:
         return {"messages": [message.to_dict() for message in messages]}
@@ -260,4 +262,4 @@ if __name__ == "__main__":
 # エラーハンドラー
 def error_handler(event, e):
     app.logger.error(f"Error sending reply message: {e}")
-    reply_message(event, NormalMessage(event, "例外が発生しました"))
+    reply_message(event, NormalMessage.create_message(event, "例外が発生しました"))
