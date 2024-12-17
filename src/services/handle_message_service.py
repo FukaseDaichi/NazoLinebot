@@ -20,13 +20,14 @@ class HandleMessageService:
 
     def __load_message_dict(self):
         """
-        メッセージ辞書をロード
+        メッセージ辞書をロードし、正規表現をコンパイル
         """
         try:
             with open(self.message_dict_path, mode="r", encoding="utf-8") as file:
-                self.__messagedict = json.load(file)
-        except Exception as e:
-            raise ValueError(f"Failed to load message dictionary: {e}")
+                raw_dict = json.load(file)
+            self.__messagedict = {re.compile(key): value for key, value in raw_dict.items()}
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Invalid JSON format in message dictionary: {e}")
 
     def generate_reply_message(self, event):
 
@@ -37,12 +38,12 @@ class HandleMessageService:
             return SetUserNameMessage.create_message(event)
 
         # メッセージ辞書一致
-        for key, value in self.__messagedict.items():
-            if re.compile(key).fullmatch(event.message.text):
+        for regex, value in self.__messagedict.items():
+            if regex.fullmatch(event.message.text):
                 #  クラスパスの場合
                 if type(value) is str and value.startswith("src.messages"):
                     message_module = importlib.import_module(value)
-                    return message_module.Message.create_message(event)
+                    return message_module.Message.create_message(event, value)
 
                 return NormalMessage.create_message(event, value)
 
