@@ -78,21 +78,27 @@ def before_handler(func):
 
         ## stateの取得
         state = user_state_manager.get_user_state(user_id)
-        
+
         ## modeがないとき
         if state == None or "mode" not in state:
-            user_state_manager.set_user_state(user_id, {"mode": "defolt"})
 
-            ## nameの取得
-            user_name = user_state_manager.get_user_name(user_id)
-            
+            ## モードをデフォルトで設定
+            user_state_manager.set_user_state(user_id, {"mode": "default"})
+
             ## グローバルに格納
             g.state = user_state_manager.get_user_state(user_id)
             g.user_id = user_id
-            g.user_name = user_name
 
-        ## ユーザー名なし、かつmodeなしの場合、ユーザー名の設定へ
-        if g.user_name == None:
+            ## nameの取得
+            user_name = user_state_manager.get_user_name(user_id)
+
+            ## ユーザ名がある場合メモリに格納
+            if user_name:
+                user_state_manager.set_user_state(user_id, {"user_name": user_name})
+                g.user_name = user_name
+
+        ## ユーザー名なしかつ、ユーザー名設定モードではない場合
+        if g.user_name == None and g.state.get("mode") != "set_user_name":
             reply_message(
                 event,
                 NormalMessage.create_message(
@@ -113,9 +119,33 @@ def topPage():
     return render_template("index.html")
 
 
-# 動作確認用
+## 動作確認用
+## http://127.0.0.1:8000/test/a?mode=set_user_name&user_id=default_id
 @app.route("/test/<text>", methods=["GET"])
 def test(text):
+
+    user_id = request.args.get("user_id")
+    user_name = request.args.get("user_name")
+    mode = request.args.get("mode")
+
+    if user_id:
+        g.user_id = user_id
+
+        if mode:
+            user_state_manager.set_user_state(user_id, {"mode": mode})
+            g.state = user_state_manager.get_user_state(user_id)
+
+        if user_name:
+            user_state_manager.set_user_state(user_id, {"user_name": user_name})
+        else:
+            ## nameの取得
+            user_name = user_state_manager.get_user_name(user_id)
+            ## ユーザ名がある場合メモリに格納
+            if user_name:
+                user_state_manager.set_user_state(user_id, {"user_name": user_name})
+                g.user_name = user_name
+
+    print(g.state)
     event = DictDotNotation({"message": DictDotNotation({"text": text})})
     messages = handle_message_service.generate_reply_message(event)
 

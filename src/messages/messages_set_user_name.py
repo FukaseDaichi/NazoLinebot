@@ -1,11 +1,6 @@
 from linebot.v3.messaging import (
     TextMessage,
     FlexMessage,
-    FlexBubble,
-    FlexBox,
-    FlexText,
-    Button,
-    PostbackAction,
 )
 from urllib.parse import quote
 
@@ -21,36 +16,46 @@ class Message:
         user_input_encoded = quote(user_input)
 
         # FlexBubbleの生成
-        bubble = FlexBubble(
-            body=FlexBox(
-                layout="vertical",
-                contents=[
-                    FlexText(
-                        text=f"お名前は「{user_input} 」でよろしいですか？この名前はデータ収集され、以降変更できません。",
-                        wrap=True,
-                    )
+        bubble = {
+            "type": "bubble",
+            "body": {
+                "type": "box",
+                "layout": "vertical",
+                "contents": [
+                    {
+                        "type": "text",
+                        "text": f"「{user_input}」でよろしいですか？お名前は変更できません。",
+                        "wrap": True,
+                    }
                 ],
-            ),
-            footer=FlexBox(
-                layout="horizontal",
-                contents=[
-                    Button(
-                        action=PostbackAction(
-                            label="Yes",
-                            data=f"action=confirm&user_input={user_input_encoded}",
-                            display_text="Yes",
-                        )
-                    ),
-                    Button(
-                        action=PostbackAction(
-                            label="No",
-                            data="action=reject",
-                            display_text="No",
-                        )
-                    ),
+            },
+            "footer": {
+                "type": "box",
+                "layout": "horizontal",
+                "spacing": "none",
+                "flex": 0,
+                "contents": [
+                    {
+                        "type": "button",
+                        "height": "sm",
+                        "action": {
+                            "type": "postback",
+                            "label": "はい",
+                            "data": f"action=confirm&user_input={user_input_encoded}",
+                        },
+                    },
+                    {
+                        "type": "button",
+                        "height": "sm",
+                        "action": {
+                            "type": "postback",
+                            "label": "いいえ",
+                            "data": "action=reject",
+                        },
+                    },
                 ],
-            ),
-        )
+            },
+        }
 
         # FlexMessageの生成
-        return FlexMessage(alt_text="確認", contents=bubble)
+        return FlexMessage(alt_text="お名前の確認", contents=bubble)

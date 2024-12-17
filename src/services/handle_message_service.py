@@ -29,13 +29,13 @@ class HandleMessageService:
             raise ValueError(f"Failed to load message dictionary: {e}")
 
     def generate_reply_message(self, event):
-        
+
         mode = g.state.get("mode")
 
         ## ユーザー名設定の場合
-        if(mode == "set_user_name"):
+        if mode == "set_user_name":
             return SetUserNameMessage.create_message(event)
-        
+
         # メッセージ辞書一致
         for key, value in self.__messagedict.items():
             if re.compile(key).fullmatch(event.message.text):
@@ -47,6 +47,4 @@ class HandleMessageService:
                 return NormalMessage.create_message(event, value)
 
         # なかった場合
-        return NormalMessage.create_message(
-            event, g.user_state_manager.get_user_state(g.user_id).get("last_message")
-        )
+        return NormalMessage.create_message(event, "デフォルトメッセージ")
