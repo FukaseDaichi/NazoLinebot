@@ -98,7 +98,7 @@ def before_handler(func):
                 g.user_name = user_name
 
         ## ユーザー名なしかつ、ユーザー名設定モードではない場合
-        if g.user_name == None and g.state.get("mode") != "set_user_name":
+        if g.get("user_name") == None and g.state.get("mode") != "set_user_name":
             reply_message(
                 event,
                 NormalMessage.create_message(
