@@ -85,9 +85,7 @@ def before_handler(func):
             ## モードをデフォルトで設定
             user_state_manager.set_user_state(user_id, {"mode": "default"})
 
-            ## グローバルに格納
-            g.state = user_state_manager.get_user_state(user_id)
-            g.user_id = user_id
+            state = user_state_manager.get_user_state(user_id)
 
             ## nameの取得
             user_name = user_state_manager.get_user_name(user_id)
@@ -96,9 +94,13 @@ def before_handler(func):
             if user_name:
                 user_state_manager.set_user_state(user_id, {"user_name": user_name})
                 g.user_name = user_name
+        
+        ## グローバルデータへ格納
+        g.state = state
+        g.user_id = user_id
 
         ## ユーザー名なしかつ、ユーザー名設定モードではない場合
-        if g.get("user_name") == None and g.state.get("mode") != "set_user_name":
+        if g.state.get("user_name") == None and g.state.get("mode") != "set_user_name":
             reply_message(
                 event,
                 NormalMessage.create_message(
