@@ -1,3 +1,5 @@
+from functools import partial
+import threading
 import requests
 
 
@@ -36,21 +38,24 @@ class GASManager:
         return data["message"]
 
     def register_user(self, user_id, name):
-        """
-        Register a new user using the GAS API with a POST request.
-
-        :param user_id: str, the userId for the new user
-        :param name: str, the name of the new user
-        :return: dict, the parsed JSON response from the API
-        """
+        # ユーザー登録のためのペイロードを準備
         payload = {"key": "putuser", "userId": user_id, "name": name}
+        # GAS APIへのPOSTリクエストを送信
+        self.post_method(payload)
+    
+    def post_method(self, payload):
+        """
+        GAS APIへのPOSTリクエストを送信します。
+        """
         try:
+            print(payload)
             response = requests.post(self.base_url, json=payload)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
-            print(f"Error registering user with GAS API: {e}")
+            print(f"Error with GAS API: {e}")
             return None
+    
 
 
 # Example usage
@@ -59,3 +64,11 @@ if __name__ == "__main__":
     fetcher = GASManager(base_url)
     fetcher.register_user("new","nameだよ")
     print(fetcher.get_user_name("new"))
+
+    ## 登録
+    # 値を束縛した新しい関数を作成
+    target = partial(fetcher.register_user, None, None)
+    # スレッドを作成して非同期で実行
+    thread = threading.Thread(target=target)
+    thread.start()
+
