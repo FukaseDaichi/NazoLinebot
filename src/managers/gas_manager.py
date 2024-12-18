@@ -32,6 +32,7 @@ class GASManager:
 
     def get_user_name(self, user_id):
         data = self.get_data({"key": "getusername", "userId": user_id})
+        print(data)
         return data["message"]
 
     def register_user(self, user_id, name):
@@ -56,5 +57,5 @@ class GASManager:
 if __name__ == "__main__":
     base_url = "https://script.google.com/macros/s/AKfycbybP4nB8hHYYGkAP8fYNrFnGQ4qY0D24-W407W5rSbXQ7DwMEop8-4kPrU4EzSw-eS3/exec"
     fetcher = GASManager(base_url)
-    fetcher.register_user("idだよ","nameだよ")
-    print(fetcher.get_user_name("saple"))
+    fetcher.register_user("new","nameだよ")
+    print(fetcher.get_user_name("new"))
