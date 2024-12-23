@@ -123,7 +123,7 @@ def topPage():
 
 
 ## 動作確認用
-## http://127.0.0.1:8000/test/a?mode=set_user_name&user_id=default_id
+## http://127.0.0.1:8000/test/help?mode=default&user_id=default_id
 @app.route("/test/<text>", methods=["GET"])
 def test(text):
 

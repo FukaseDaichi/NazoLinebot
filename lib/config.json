@@ -1,0 +1,6 @@
+{
+    "message_dicts": {
+        "default": "./lib/messages.json",
+        "first": "./lib/first/messages.json"
+    }
+}

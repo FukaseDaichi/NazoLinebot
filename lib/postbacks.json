@@ -1,4 +1,5 @@
 {
   "action=reject.*": "もう一度教えてください。",
-  "action=register.*": "src.messages.messages_register_user"
+  "action=register.*": "src.messages.messages_register_user",
+  "action=changemode.*": "src.messages.messages_change_mode"
 }

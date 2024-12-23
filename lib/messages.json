@@ -1,5 +1,5 @@
 {
-  "help": "src.messages.messages_help",
+  "一覧": "src.messages.messages_game_list",
   "status": "src.messages.messages_status",
   "こん.*": "{user_name}さんこんにちは",
   "おはよう": [

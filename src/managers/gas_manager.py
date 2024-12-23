@@ -43,6 +43,18 @@ class GASManager:
         payload = {"key": "putuser", "userId": user_id, "name": name}
         # GAS APIへのPOSTリクエストを送信
         self.post_method(payload)
+    
+    def start_game(self, title, user_id):
+        # ユーザー登録のためのペイロードを準備
+        payload = {"key": "start", "title": title, "userId": user_id}
+        # GAS APIへのPOSTリクエストを送信
+        self.post_method(payload)
+    
+    def end_game(self, title, user_id):
+        # ユーザー登録のためのペイロードを準備
+        payload = {"key": "end", "title": title, "userId": user_id}
+        # GAS APIへのPOSTリクエストを送信
+        self.post_method(payload)
 
     def post_method(self, payload):
         """
