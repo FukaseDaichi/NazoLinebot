@@ -12,7 +12,7 @@ class Message:
         if g.state.get("mode") != "set_user_name":
             user_name = g.user_state_manager.get_user_name(g.user_id)
             return NormalMessage.create_message(
-                event, f"{user_name}さんですでに登録してます！"
+                event, f"{user_name}さんですでに登録してます。"
             )
 
         data = event.postback.data
@@ -30,5 +30,5 @@ class Message:
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target)
         thread.start()
-        
+
         return NormalMessage.create_message(event, f"{user_input}で登録しました。")

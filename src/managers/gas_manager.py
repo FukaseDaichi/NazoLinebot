@@ -1,4 +1,5 @@
 from functools import partial
+import os
 import threading
 import requests
 
@@ -41,8 +42,8 @@ class GASManager:
         # ユーザー登録のためのペイロードを準備
         payload = {"key": "putuser", "userId": user_id, "name": name}
         # GAS APIへのPOSTリクエストを送信
-        self.get_method(payload)
-    
+        self.post_method(payload)
+
     def post_method(self, payload):
         """
         GAS APIへのPOSTリクエストを送信します。
@@ -55,7 +56,7 @@ class GASManager:
         except requests.exceptions.RequestException as e:
             print(f"Error with GAS API: {e}")
             return None
-    
+
     def get_method(self, payload):
         """
         GAS APIへのGetリクエストを送信します。
@@ -68,15 +69,13 @@ class GASManager:
         except requests.exceptions.RequestException as e:
             print(f"Error with GAS API: {e}")
             return None
-    
-    
 
 
 # Example usage
 if __name__ == "__main__":
-    base_url = "https://script.google.com/macros/s/AKfycbybP4nB8hHYYGkAP8fYNrFnGQ4qY0D24-W407W5rSbXQ7DwMEop8-4kPrU4EzSw-eS3/exec"
+    base_url = os.environ["GAS_API_URL"]
     fetcher = GASManager(base_url)
-    fetcher.register_user("new3","name3だよ")
+    fetcher.register_user("new3", "name3だよ")
     print(fetcher.get_user_name("new"))
 
     ## 登録
@@ -85,4 +84,3 @@ if __name__ == "__main__":
     # スレッドを作成して非同期で実行
     thread = threading.Thread(target=target)
     thread.start()
-

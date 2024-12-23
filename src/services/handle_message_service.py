@@ -45,6 +45,7 @@ class HandleMessageService:
                     return message_module.Message.create_message(event, value)
 
                 return NormalMessage.create_message(event, value)
-
+        
+        ## user_name = g.user_state_manager.get_user_name(g.user_id)
         # なかった場合
         return NormalMessage.create_message(event, "デフォルトメッセージ")

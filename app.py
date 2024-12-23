@@ -39,7 +39,7 @@ CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
 GAS_API_URL = os.environ["GAS_API_URL"]
 
 ## Flask アプリのインスタンス化
-app = Flask(__name__)
+app = Flask(__name__, static_folder="resources")
 
 ## LINE のアクセストークン読み込み
 configuration = Configuration(access_token=CHANNEL_ACCESS_TOKEN)
@@ -185,11 +185,13 @@ def callback():
 ## 友達追加時のメッセージ送信
 @handler.add(FollowEvent)
 def handle_follow(event):
-    ## 返信
-    line_bot_api.reply_message(
-        ReplyMessageRequest(
-            replyToken=event.reply_token, messages=[TextMessage(text="Thank You!")]
-        )
+    user_state_manager.set_user_state(event.source.user_id, {"mode": "set_user_name"})
+    reply_message(
+        event,
+        NormalMessage.create_message(
+            event,
+            "こんにちは白いフラン謎へようこそ。まず名前を設定していただきます。あなたのお名前を教えてください",
+        ),
     )
 
 
