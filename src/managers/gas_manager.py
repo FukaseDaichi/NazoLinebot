@@ -41,7 +41,7 @@ class GASManager:
         # ユーザー登録のためのペイロードを準備
         payload = {"key": "putuser", "userId": user_id, "name": name}
         # GAS APIへのPOSTリクエストを送信
-        self.post_method(payload)
+        self.get_method(payload)
     
     def post_method(self, payload):
         """
@@ -56,13 +56,27 @@ class GASManager:
             print(f"Error with GAS API: {e}")
             return None
     
+    def get_method(self, payload):
+        """
+        GAS APIへのGetリクエストを送信します。
+        """
+        try:
+            print(payload)
+            response = requests.get(self.base_url, params=payload)
+            response.raise_for_status()
+            return response.json()
+        except requests.exceptions.RequestException as e:
+            print(f"Error with GAS API: {e}")
+            return None
+    
+    
 
 
 # Example usage
 if __name__ == "__main__":
     base_url = "https://script.google.com/macros/s/AKfycbybP4nB8hHYYGkAP8fYNrFnGQ4qY0D24-W407W5rSbXQ7DwMEop8-4kPrU4EzSw-eS3/exec"
     fetcher = GASManager(base_url)
-    fetcher.register_user("new","nameだよ")
+    fetcher.register_user("new3","name3だよ")
     print(fetcher.get_user_name("new"))
 
     ## 登録

@@ -22,15 +22,13 @@ class Message:
         ## URLデコードを行う
         user_input = unquote(user_input)
         ## 登録
-        # g.user_state_manager.set_user_state(
-        #     g.user_id, {"user_name": user_input, "mode": "default"}
-        # )
-        # # 値を束縛した新しい関数を作成
-        # target = partial(g.gas_manager.register_user, g.user_id, user_input)
-        # # スレッドを作成して非同期で実行
-        # thread = threading.Thread(target=target)
-        # thread.start()
-
-        g.gas_manager.register_user(g.user_id, user_input)
-
+        g.user_state_manager.set_user_state(
+            g.user_id, {"user_name": user_input, "mode": "default"}
+        )
+        # 値を束縛した新しい関数を作成
+        target = partial(g.gas_manager.register_user, g.user_id, user_input)
+        # スレッドを作成して非同期で実行
+        thread = threading.Thread(target=target)
+        thread.start()
+        
         return NormalMessage.create_message(event, f"{user_input}で登録しました。")
