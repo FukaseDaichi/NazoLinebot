@@ -1,3 +1,4 @@
+import time
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
 from linebot.v3.messaging import (
@@ -18,6 +19,7 @@ from linebot.v3.webhooks import (
 
 import os
 from flask import Flask, g, request, abort, render_template
+import urllib3
 from src.services.handle_postback_service import HandlePostbackService
 from src.managers.gas_manager import GASManager
 from src.managers.user_state_manager import UserStateManager
@@ -232,10 +234,18 @@ def reply_message(event, messages):
     try:
         if not isinstance(messages, list):
             messages = [messages]
-        ## APIインスタンス化
-        line_bot_api.reply_message(
-            ReplyMessageRequest(replyToken=event.reply_token, messages=messages)
-        )
+
+        for _ in range(3):  # 最大3回リトライ
+            try:
+                line_bot_api.reply_message(
+                    ReplyMessageRequest(replyToken=event.reply_token, messages=messages)
+                )
+                break  # 成功したらループを抜ける
+            except urllib3.exceptions.ProtocolError as e:
+                app.logger.error(f"APIエラー {e}, retrying...")
+                # 待機時間を設ける
+                time.sleep(0.2)
+                continue  # リトライ
     except Exception as e:
         error_handler(event, e)
 

@@ -35,7 +35,10 @@ class GASManager:
 
     def get_user_name(self, user_id):
         data = self.get_data({"key": "getusername", "userId": user_id})
-        print(data)
+        return data["message"]
+
+    def get_user_score(self, user_id, title):
+        data = self.get_data({"key": "getscore", "userId": user_id, "title": title})
         return data["message"]
 
     def register_user(self, user_id, name):
@@ -43,13 +46,13 @@ class GASManager:
         payload = {"key": "putuser", "userId": user_id, "name": name}
         # GAS APIへのPOSTリクエストを送信
         self.post_method(payload)
-    
+
     def start_game(self, title, user_id):
         # ユーザー登録のためのペイロードを準備
         payload = {"key": "start", "title": title, "userId": user_id}
         # GAS APIへのPOSTリクエストを送信
         self.post_method(payload)
-    
+
     def end_game(self, title, user_id):
         # ユーザー登録のためのペイロードを準備
         payload = {"key": "end", "title": title, "userId": user_id}
@@ -88,11 +91,13 @@ if __name__ == "__main__":
     base_url = os.environ["GAS_API_URL"]
     fetcher = GASManager(base_url)
     fetcher.register_user("new3", "name3だよ")
-    print(fetcher.get_user_name("new"))
 
-    ## 登録
-    # 値を束縛した新しい関数を作成
-    target = partial(fetcher.register_user, None, None)
-    # スレッドを作成して非同期で実行
-    thread = threading.Thread(target=target)
-    thread.start()
+    print(fetcher.get_user_name("new3"))
+    print(fetcher.get_user_score("aaa", "f")["score"])
+
+    # ## 登録
+    # # 値を束縛した新しい関数を作成
+    # target = partial(fetcher.register_user, None, None)
+    # # スレッドを作成して非同期で実行
+    # thread = threading.Thread(target=target)
+    # thread.start()

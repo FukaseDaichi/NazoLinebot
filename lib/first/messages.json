@@ -1,4 +1,6 @@
 {
   "スタート": "src.messages.first.messages_start",
-  "すたーと": "src.messages.first.messages_start"
+  "すたーと": "src.messages.first.messages_start",
+  "エンド": "src.messages.first.messages_end",
+  "スコア": "src.messages.first.messages_score"
 }
