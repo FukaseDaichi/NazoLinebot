@@ -1,6 +1,12 @@
 {
     "message_dicts": {
         "default": "./lib/messages.json",
-        "first": "./lib/first/messages.json"
+        "first": "./lib/first/messages.json",
+        "tutorial": "./lib/tutorial/messages.json"
+    },
+    "title": {
+        "default": "デフォルト",
+        "first": "布団からの脱出",
+        "tutorial": "チュートリアル"
     }
 }

@@ -50,15 +50,18 @@ class HandleMessageService:
         ## ユーザー名設定の場合
         if mode == "set_user_name":
             return SetUserNameMessage.create_message(event)
-        
+
         # メッセージ辞書一致
         message_dict = self.__messagedicts[mode]
         for key, value in message_dict.items():
             if re.compile(key).fullmatch(event.message.text):
                 #  クラスパスの場合
                 if type(value) is str and value.startswith("src.messages"):
-                    message_module = importlib.import_module(value)
-                    return message_module.Message.create_message(event, value)
+                    params = value.split(":")
+                    message_module = importlib.import_module(params[0])
+
+                    param = params[1:] if len(params) > 1 else None
+                    return message_module.Message.create_message(event, param)
 
                 return NormalMessage.create_message(event, value)
 

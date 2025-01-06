@@ -6,14 +6,18 @@ import threading
 
 class Message:
     @staticmethod
-    def create_message(event, obj=None):
+    def create_message(event, args=None):
+        """
+        args[0]はtitleとする。
+        args[1]はmessageとする。
+        """
         # 値を束縛した新しい関数を作成
-        target = partial(g.gas_manager.end_game, "first", g.user_id)
+        target = partial(g.gas_manager.end_game, args[0], g.user_id)
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target)
         thread.start()
 
         return NormalMessage.create_message(
             event,
-            "終了しました。「スコア」であなたのスコアが確認できます。「ランキング」で上位５人が見えます。",
+            args[1],
         )

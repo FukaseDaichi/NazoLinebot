@@ -1,4 +1,6 @@
 {
-  "スタート": "src.messages.tutorial.messages_start",
-  "すたーと": "src.messages.tutorial.messages_start"
+  "スタート": "src.messages.messages_start:tutorial:開始しました。",
+  "すたーと": "src.messages.messages_start:tutorial:開始しました。",
+  "エンド": "src.messages.messages_end:tutorial:終了しました。「スコア」であなたのスコアが確認できます。「ランキング」で上位５人が見えます。",
+  "スコア": "src.messages.messages_score:tutorial"
 }
