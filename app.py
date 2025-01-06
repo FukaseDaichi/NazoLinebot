@@ -263,5 +263,5 @@ if __name__ == "__main__":
 
 # エラーハンドラー
 def error_handler(event, e):
-    app.logger.error(f"Error sending reply message: {e}")
+    app.logger.error(f"Error sending reply message: {e}", exc_info=True)
     reply_message(event, NormalMessage.create_message(event, "例外が発生しました"))
