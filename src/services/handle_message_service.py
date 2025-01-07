@@ -54,7 +54,7 @@ class HandleMessageService:
         # メッセージ辞書一致
         message_dict = self.__messagedicts[mode]
         for key, value in message_dict.items():
-            if re.compile(key).fullmatch(event.message.text):
+            if re.compile(key, re.IGNORECASE).fullmatch(event.message.text):
                 #  クラスパスの場合
                 if type(value) is str and value.startswith("src.messages"):
                     params = value.split("||")
