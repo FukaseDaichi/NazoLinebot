@@ -2,6 +2,8 @@
   "一覧": "src.messages.messages_game_list",
   "status": "src.messages.messages_status",
   "こん.*": "{user_name}さんこんにちは",
+  "ranking": "src.messages.messages_ranking:tutorial",
+  "ランキング": "src.messages.messages_ranking:tutorial",
   "おはよう": [
     "{user_name}さんおはようございます。",
     "いい朝ですね"

@@ -2,5 +2,6 @@
   "スタート": "src.messages.messages_start:first:開始しました。",
   "すたーと": "src.messages.messages_start:first:開始しました。",
   "エンド": "src.messages.messages_end:first:終了しました。「スコア」であなたのスコアが確認できます。「ランキング」で上位５人が見えます。",
-  "スコア": "src.messages.messages_score:first"
+  "スコア": "src.messages.messages_score:first",
+  "ランキング": "src.messages.messages_ranking:first"
 }

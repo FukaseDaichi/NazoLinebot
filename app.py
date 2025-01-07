@@ -1,3 +1,4 @@
+import asyncio
 import time
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -211,10 +212,10 @@ def handle_message(event, __destination=None):
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 @before_handler
-async def handle_voice(event, __destination=None):
+def handle_voice(event, __destination=None):
     try:
-        # process_audio_messageはasync関数
-        response_text = await audio_handler.process_audio_message(event)
+        # 非同期処理を同期的に呼び出し
+        response_text = asyncio.run(audio_handler.process_audio_message(event))
         reply_message(event, [TextMessage(text=response_text)])
     except Exception as e:
         error_handler(event, e)
