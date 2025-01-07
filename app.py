@@ -218,22 +218,14 @@ def handle_voice(event, __destination=None):
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target)
         thread.start()
-        reply_message(
-            event,
-            [TextMessage(text=NormalMessage.create_message(event, "音声解析中です……"))],
-        )
-
     except Exception as e:
         error_handler(event, e)
 
 
 def handle_audio(event):
-    try:
-        # 非同期処理を同期的に呼び出し
-        response_text = asyncio.run(audio_handler.process_audio_message(event))
-        reply_message(event, [TextMessage(text=response_text)])
-    except Exception as e:
-        error_handler(event, e)
+    # 非同期処理を同期的に呼び出し
+    response_text = asyncio.run(audio_handler.process_audio_message(event))
+    reply_message(event, [TextMessage(text=response_text)])
 
 
 ## ポストバックハンドラー
@@ -264,7 +256,8 @@ def reply_message(event, messages):
                 time.sleep(0.2)
                 continue  # リトライ
     except Exception as e:
-        error_handler(event, e)
+        # error_handler(event, e)
+        app.logger.error(f"システムエラー{e}")
 
 
 def default_message(event):
