@@ -1,4 +1,5 @@
 import asyncio
+import threading
 import time
 from linebot.v3 import WebhookHandler
 from linebot.v3.exceptions import InvalidSignatureError
@@ -28,7 +29,7 @@ from src.services.handle_audiomessage_service import AudioMessageHandler
 from src.services.handle_message_service import HandleMessageService
 from src.commonclass.dict_not_notetion import DictDotNotation
 from src.services.schedule import sched
-from functools import wraps
+from functools import partial, wraps
 from src.messages.messages_normal import Message as NormalMessage
 
 ## .env ファイル読み込み
@@ -210,6 +211,23 @@ def handle_message(event, __destination=None):
 @handler.add(MessageEvent, message=AudioMessageContent)
 @before_handler
 def handle_voice(event, __destination=None):
+    try:
+        # 解析中
+        # 値を束縛した新しい関数を作成
+        target = partial(handle_audio, event)
+        # スレッドを作成して非同期で実行
+        thread = threading.Thread(target=target)
+        thread.start()
+        reply_message(
+            event,
+            [TextMessage(text=NormalMessage.create_message(event, "音声解析中です……"))],
+        )
+
+    except Exception as e:
+        error_handler(event, e)
+
+
+def handle_audio(event):
     try:
         # 非同期処理を同期的に呼び出し
         response_text = asyncio.run(audio_handler.process_audio_message(event))
