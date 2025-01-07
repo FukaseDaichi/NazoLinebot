@@ -1,7 +1,10 @@
 {
-  "スタート": "src.messages.messages_start:tutorial:開始しました。",
-  "すたーと": "src.messages.messages_start:tutorial:開始しました。",
-  "エンド": "src.messages.messages_end:tutorial:終了しました。「スコア」であなたのスコアが確認できます。「ランキング」で上位５人が見えます。",
+  "スタート": "src.messages.messages_start:tutorial:https://nazolinebot.onrender.com/resources/img/tutorial.png",
   "スコア": "src.messages.messages_score:tutorial",
-  "ランキング": "src.messages.messages_ranking:tutorial"
+  "ランキング": "src.messages.messages_ranking:tutorial",
+  "NAME": "おしいっ！",
+  "名前": "おしいっ！",
+  "なまえ": "おしいっ！",
+  "ネーム": "おしいっ！",
+  ".*": "src.messages.tutorial.messages_tutorial"
 }

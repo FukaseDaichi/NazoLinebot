@@ -36,7 +36,7 @@ class AudioMessageHandler:
             delete=False, suffix=".m4a"
         ) as temp_audio_file:
             temp_audio_path = temp_audio_file.name
-            await temp_audio_file.write(message_content)
+            temp_audio_file.write(message_content)
 
         with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_wav_file:
             wav_path = temp_wav_file.name
@@ -44,7 +44,7 @@ class AudioMessageHandler:
         try:
             # 音声ファイルを一時保存
             async with aiofiles.open(temp_audio_path, "wb") as temp_audio_file:
-                await temp_audio_file.write(message_content)
+                temp_audio_file.write(message_content)
 
             # ffmpegでWAVに変換
             process = await asyncio.create_subprocess_exec(
