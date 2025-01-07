@@ -1,7 +1,7 @@
 {
-  "スタート": "src.messages.messages_start:tutorial:https://nazolinebot.onrender.com/resources/img/tutorial.png",
-  "スコア": "src.messages.messages_score:tutorial",
-  "ランキング": "src.messages.messages_ranking:tutorial",
+  "スタート": "src.messages.messages_start||tutorial:https://nazolinebot.onrender.com/resources/img/tutorial.png",
+  "スコア": "src.messages.messages_score||tutorial",
+  "ランキング": "src.messages.messages_ranking||tutorial",
   "NAME": "おしいっ！",
   "名前": "おしいっ！",
   "なまえ": "おしいっ！",

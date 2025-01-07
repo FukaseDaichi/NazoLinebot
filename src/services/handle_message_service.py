@@ -57,7 +57,7 @@ class HandleMessageService:
             if re.compile(key).fullmatch(event.message.text):
                 #  クラスパスの場合
                 if type(value) is str and value.startswith("src.messages"):
-                    params = value.split(":")
+                    params = value.split("||")
                     message_module = importlib.import_module(params[0])
 
                     param = params[1:] if len(params) > 1 else None

@@ -31,20 +31,21 @@ class AudioMessageHandler:
         if len(message_content) > self.MAX_FILE_SIZE:
             return "もっと短くしゃべってほしいな"
 
-        # 一時ファイルを作成
-        with tempfile.NamedTemporaryFile(
-            delete=False, suffix=".m4a"
-        ) as temp_audio_file:
-            temp_audio_path = temp_audio_file.name
-            temp_audio_file.write(message_content)
-
-        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_wav_file:
-            wav_path = temp_wav_file.name
-
         try:
-            # 音声ファイルを一時保存
-            async with aiofiles.open(temp_audio_path, "wb") as temp_audio_file:
-                temp_audio_file.write(message_content)
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".m4a"
+            ) as temp_audio_file:
+                temp_audio_path = temp_audio_file.name
+
+            # 非同期で書き込む
+            async with aiofiles.open(temp_audio_path, "wb") as f:
+                await f.write(message_content)
+
+            # WAV 用一時ファイルパスだけ先に用意
+            with tempfile.NamedTemporaryFile(
+                delete=False, suffix=".wav"
+            ) as temp_wav_file:
+                wav_path = temp_wav_file.name
 
             # ffmpegでWAVに変換
             process = await asyncio.create_subprocess_exec(
