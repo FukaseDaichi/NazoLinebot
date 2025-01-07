@@ -1,7 +1,6 @@
 import uuid
 import os
 import subprocess
-from vosk import Model
 from vosk import Model, KaldiRecognizer
 import pykakasi
 import json
@@ -25,7 +24,7 @@ class AudioMessageHandler:
         :param event: LINE APIからのevent
         :return: 認識結果（ひらがな）
         """
-        message_content = await self.line_bot_blob_api.get_message_content_async(
+        message_content = self.line_bot_blob_api.get_message_content(
             message_id=event.message.id
         )
 
@@ -34,19 +33,28 @@ class AudioMessageHandler:
             return "もっと短くしゃべってほしいな"
 
         # ユニークなファイル名を生成
-        temp_audio_path = f"/tmp/{uuid.uuid4()}.m4a"
-        wav_path = f"/tmp/{uuid.uuid4()}.wav"
+        unique_id = uuid.uuid4()
+        temp_audio_path = f"/tmp/{unique_id}.m4a"
+        wav_path = f"/tmp/{unique_id}.wav"
 
         try:
             # tempfileを使って一時ファイルを生成
-            async with aiofiles.open(temp_audio_path, 'wb') as temp_audio_file:
+            async with aiofiles.open(temp_audio_path, "wb") as temp_audio_file:
                 await temp_audio_file.write(message_content)
 
             # m4aをWAVに変換
             process = await asyncio.create_subprocess_exec(
-                "ffmpeg", "-y", "-i", temp_audio_path, "-ar", "16000", "-ac", "1", wav_path,
+                "ffmpeg",
+                "-y",
+                "-i",
+                temp_audio_path,
+                "-ar",
+                "16000",
+                "-ac",
+                "1",
+                wav_path,
                 stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
+                stderr=asyncio.subprocess.PIPE,
             )
             await process.communicate()
 
