@@ -1,11 +1,10 @@
-import uuid
 import os
-import subprocess
 from vosk import Model, KaldiRecognizer
 import pykakasi
 import json
 import asyncio
 import aiofiles
+import tempfile
 
 
 class AudioMessageHandler:
@@ -32,17 +31,22 @@ class AudioMessageHandler:
         if len(message_content) > self.MAX_FILE_SIZE:
             return "もっと短くしゃべってほしいな"
 
-        # ユニークなファイル名を生成
-        unique_id = uuid.uuid4()
-        temp_audio_path = f"/tmp/{unique_id}.m4a"
-        wav_path = f"/tmp/{unique_id}.wav"
+        # 一時ファイルを作成
+        with tempfile.NamedTemporaryFile(
+            delete=False, suffix=".m4a"
+        ) as temp_audio_file:
+            temp_audio_path = temp_audio_file.name
+            await temp_audio_file.write(message_content)
+
+        with tempfile.NamedTemporaryFile(delete=False, suffix=".wav") as temp_wav_file:
+            wav_path = temp_wav_file.name
 
         try:
-            # tempfileを使って一時ファイルを生成
+            # 音声ファイルを一時保存
             async with aiofiles.open(temp_audio_path, "wb") as temp_audio_file:
                 await temp_audio_file.write(message_content)
 
-            # m4aをWAVに変換
+            # ffmpegでWAVに変換
             process = await asyncio.create_subprocess_exec(
                 "ffmpeg",
                 "-y",
@@ -58,36 +62,43 @@ class AudioMessageHandler:
             )
             await process.communicate()
 
-            # 音声認識
+            # 音声認識の準備
             recognizer = KaldiRecognizer(self.model, 16000)
+
+            # チャンクごとにデータを読み込み
+            chunk_size = 8000  # 読み込むデータ量 (8000バイト = 約0.5秒分)
+            buffer = b""  # バッファを初期化
             async with aiofiles.open(wav_path, "rb") as wav_file:
                 while True:
-                    data = await wav_file.read(4000)
-                    if len(data) == 0:
+                    data = await wav_file.read(chunk_size)
+                    if not data:  # ファイルの終わりに到達
                         break
-                    recognizer.AcceptWaveform(data)
 
-            # 認識結果を取得
+                    # バッファにデータを蓄積
+                    buffer += data
+
+                    # 十分なサイズがたまったら処理
+                    if len(buffer) >= chunk_size:
+                        recognizer.AcceptWaveform(buffer)
+                        buffer = b""  # バッファをリセット
+
+                # 最後に残ったデータを処理
+                if buffer:
+                    recognizer.AcceptWaveform(buffer)
+
+            # 最終結果を取得
             result = json.loads(recognizer.FinalResult())
             transcript = result.get("text", "")
 
-            if transcript:
-                return transcript
-            else:
-                return "クリアな音声でもう一回！"
-        except subprocess.CalledProcessError as e:
-            stderr_output = e.stderr.decode(errors="ignore")
-            print(f"ffmpegエラー: {stderr_output}")
-            return "音声ファイルの変換中にエラーが発生しました。"
-        except Exception as e:
-            return f"エラーが発生しました: {str(e)}"
+            return transcript if transcript else "クリアな音声でもう一回！"
         finally:
+            # 一時ファイルのクリーンアップ
             for path in [temp_audio_path, wav_path]:
                 try:
                     if os.path.exists(path):
                         os.remove(path)
-                except Exception as cleanup_error:
-                    print(f"一時ファイル削除エラー: {cleanup_error}")
+                except Exception as e:
+                    print(f"一時ファイル削除エラー: {e}")
 
     def _convert_to_hiragana(self, text):
         """
