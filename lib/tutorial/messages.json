@@ -1,5 +1,5 @@
 {
-  "スタート": "src.messages.messages_start||tutorial||https://nazolinebot.onrender.com/resources/img/tutorial.png",
+  "スタート": "src.messages.tutorial.messages_start",
   "スコア": "src.messages.messages_score||tutorial",
   "ランキング": "src.messages.messages_ranking||tutorial",
   "NAME": "おしいっ！",

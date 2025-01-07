@@ -16,7 +16,7 @@ class Message:
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target)
         thread.start()
-
+        
         return NormalMessage.create_message(
             event,
             args[1],
