@@ -64,7 +64,7 @@ class UserStateManager:
 
         # 外部依存から取得
         user = self.external_manager(user_id)
-        user_name = user["name"]
+        user_name = user.get("name") if user and "name" in user else None
 
         if user_name:
             self.set_user_state(user_id, {"user_name": user_name})
@@ -78,11 +78,10 @@ class UserStateManager:
 
         # 外部依存から取得
         user = self.external_manager(user_id)
-        user_name = user["name"]
-        mode = mode["name"]
+        user_name = user.get("name") if user and "name" in user else None
+        mode = user.get("mode") if user and "mode" in user else None
 
         state = {}
-
         if user_name:
             state["user_name"] = user_name
 
