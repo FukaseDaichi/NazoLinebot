@@ -104,13 +104,13 @@ def before_handler(func):
 
         ## ユーザー名なしかつ、ユーザー名設定モードではない場合
         if g.state.get("user_name") == None and g.state.get("mode") != "set_user_name":
+            user_state_manager.set_user_state(user_id, {"mode": "set_user_name"})
             reply_message(
                 event,
                 NormalMessage.create_message(
                     event, "初めまして!お名前を教えてください！"
                 ),
             )
-            user_state_manager.set_user_state(user_id, {"mode": "set_user_name"})
             return
 
         return func(*args, **kwargs)
@@ -211,9 +211,10 @@ def handle_message(event, __destination=None):
 # 音声メッセージハンドラー
 @handler.add(MessageEvent, message=AudioMessageContent)
 @before_handler
-def handle_voice(event, __destination=None):
+async def handle_voice(event, __destination=None):
     try:
-        response_text = audio_handler.process_audio_message(event)
+        # process_audio_messageはasync関数
+        response_text = await audio_handler.process_audio_message(event)
         reply_message(event, [TextMessage(text=response_text)])
     except Exception as e:
         error_handler(event, e)
