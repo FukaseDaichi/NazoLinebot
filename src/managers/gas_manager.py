@@ -3,6 +3,7 @@ import os
 import threading
 import requests
 
+
 class GASManager:
 
     def __init__(self, base_url):
@@ -36,6 +37,10 @@ class GASManager:
         data = self.get_data({"key": "getusername", "userId": user_id})
         return data["message"]
 
+    def get_user(self, user_id):
+        data = self.get_data({"key": "getuser", "userId": user_id})
+        return data["message"]
+
     def get_user_score(self, user_id, title):
         data = self.get_data({"key": "getscore", "userId": user_id, "title": title})
         return data["message"]
@@ -44,9 +49,13 @@ class GASManager:
         data = self.get_data({"key": "getscore", "title": title})
         return data["message"]
 
-    def register_user(self, user_id, name):
+    def register_user(self, user_id, name=None, mode=None):
         # ユーザー登録のためのペイロードを準備
-        payload = {"key": "putuser", "userId": user_id, "name": name}
+        payload = {"key": "putuser", "userId": user_id}
+        if name is not None:
+            payload["name"] = name
+        if mode is not None:
+            payload["mode"] = mode
         # GAS APIへのPOSTリクエストを送信
         self.post_method(payload)
 
@@ -93,18 +102,11 @@ class GASManager:
 if __name__ == "__main__":
     base_url = os.environ["GAS_API_URL"]
     fetcher = GASManager(base_url)
-    fetcher.register_user("new3", "name3だよ")
-    fetcher.start_game("test", "fafd")
-    print(fetcher.get_user_score("aaa", "f")["score"])
-    # スコアを取得し、各ユーザーの情報を出力
-    scores = fetcher.get_score("tutorial")
-    for score in scores:
-        print(f"ユーザー名: {score['userName']}, スコア: {score['score']}")
+    print(fetcher.get_user("whitefranc1"))
 
-# .
-    # ## 登録
-    # # 値を束縛した新しい関数を作成
-    # target = partial(fetcher.register_user, None, None)
-    # # スレッドを作成して非同期で実行
-    # thread = threading.Thread(target=target)
-    # thread.start()
+    ## 登録
+    # 値を束縛した新しい関数を作成
+    target = partial(fetcher.register_user, "whitefranc1", None,"なにぬねの")
+    # スレッドを作成して非同期で実行
+    thread = threading.Thread(target=target)
+    thread.start()

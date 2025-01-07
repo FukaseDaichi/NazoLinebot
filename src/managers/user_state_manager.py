@@ -1,5 +1,6 @@
 import time
 
+
 class UserStateManager:
     def __init__(self, default_ttl=3600, external_manager=None):
         """
@@ -19,8 +20,9 @@ class UserStateManager:
         """期限切れの状態を遅延削除"""
         current_time = time.time()
         expired_users = [
-            user_id for user_id, state in self.user_states.items()
-            if state['expiration_time'] <= current_time
+            user_id
+            for user_id, state in self.user_states.items()
+            if state["expiration_time"] <= current_time
         ]
         for user_id in expired_users:
             self.user_states.pop(user_id, None)
@@ -31,7 +33,7 @@ class UserStateManager:
         expiration_time = time.time() + ttl
         pre_state = self.user_states.get(user_id, {}).get("state", {}) or {}
         pre_state.update(state)
-        
+
         self.user_states[user_id] = {
             "state": pre_state,
             "expiration_time": expiration_time,
@@ -61,7 +63,34 @@ class UserStateManager:
             return state["user_name"]
 
         # 外部依存から取得
-        user_name = self.external_manager(user_id)
+        user = self.external_manager(user_id)
+        user_name = user["name"]
+
         if user_name:
             self.set_user_state(user_id, {"user_name": user_name})
         return user_name
+
+    def get_user(self, user_id):
+        """ユーザー名を取得"""
+        state = self.get_user_state(user_id)
+        if state and "user_name" in state:
+            return state
+
+        # 外部依存から取得
+        user = self.external_manager(user_id)
+        user_name = user["name"]
+        mode = mode["name"]
+
+        state = {}
+
+        if user_name:
+            state["user_name"] = user_name
+
+        if mode:
+            state["mode"] = mode
+        else:
+            state["mode"] = "default"
+
+        self.set_user_state(user_id, state)
+
+        return state

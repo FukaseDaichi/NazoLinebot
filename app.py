@@ -55,7 +55,7 @@ with ApiClient(configuration) as api_client:
 
 ## グローバル変数の初期化
 gas_manager = GASManager(GAS_API_URL)
-user_state_manager = UserStateManager(external_manager=gas_manager.get_user_name)
+user_state_manager = UserStateManager(external_manager=gas_manager.get_user)
 
 ## handlerの初期化
 handle_message_service = HandleMessageService()
@@ -86,17 +86,14 @@ def before_handler(func):
         ## modeがないとき
         if state == None or "mode" not in state:
 
-            ## モードをデフォルトで設定
-            user_state_manager.set_user_state(user_id, {"mode": "default"})
-
-            state = user_state_manager.get_user_state(user_id)
+            ## ユーザーを取得
+            state = user_state_manager.get_user(user_id)
 
             ## nameの取得
-            user_name = user_state_manager.get_user_name(user_id)
+            user_name = state.get("user_name")
 
-            ## ユーザ名がある場合メモリに格納
+            ## ユーザ名がある場合
             if user_name:
-                user_state_manager.set_user_state(user_id, {"user_name": user_name})
                 g.user_name = user_name
 
         ## グローバルデータへ格納
