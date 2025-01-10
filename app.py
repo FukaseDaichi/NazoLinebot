@@ -183,10 +183,20 @@ def callback():
     return "OK"
 
 
-## 友達追加時のメッセージ送信
+# 友達追加時のメッセージ送信
 @handler.add(FollowEvent)
 def handle_follow(event):
-    user_state_manager.set_user_state(event.source.user_id, {"mode": "set_user_name"})
+
+    # 非同期でユーザー設定モード起動
+    target = partial(
+        user_state_manager.set_user_state,
+        event.source.user_id,
+        {"mode": "set_user_name"},
+    )
+    # スレッドを作成して非同期で実行
+    thread = threading.Thread(target=target)
+    thread.start()
+
     reply_message(
         event,
         NormalMessage.create_message(

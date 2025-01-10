@@ -35,19 +35,19 @@ class GASManager:
 
     def get_user_name(self, user_id):
         data = self.get_data({"key": "getusername", "userId": user_id})
-        return data["message"]
+        return data.get("message", None)
 
     def get_user(self, user_id):
         data = self.get_data({"key": "getuser", "userId": user_id})
-        return data["message"]
+        return data.get("message", None)
 
     def get_user_score(self, user_id, title):
         data = self.get_data({"key": "getscore", "userId": user_id, "title": title})
-        return data["message"]
+        return data.get("message", None)
 
     def get_score(self, title):
         data = self.get_data({"key": "getscore", "title": title})
-        return data["message"]
+        return data.get("message", None)
 
     def register_user(self, user_id, name=None, mode=None):
         # ユーザー登録のためのペイロードを準備

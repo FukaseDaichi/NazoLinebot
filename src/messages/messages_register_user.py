@@ -2,6 +2,7 @@ from functools import partial
 from urllib.parse import unquote
 from flask import g
 from src.messages.messages_normal import Message as NormalMessage
+from src.messages.messages_game_list import Message as GameListMessage
 import threading
 
 
@@ -30,5 +31,8 @@ class Message:
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target)
         thread.start()
+
+        messags = NormalMessage.create_message(event, f"{user_input}で登録しました。")
+        messags.append(GameListMessage.create_message(event))
 
         return NormalMessage.create_message(event, f"{user_input}で登録しました。")

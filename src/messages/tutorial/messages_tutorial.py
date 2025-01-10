@@ -7,7 +7,7 @@ import threading
 class Message:
     @staticmethod
     def create_message(event, args=None):
-        
+
         user_message = event.message.text
 
         if user_message == g.state.get("user_name"):
@@ -18,10 +18,15 @@ class Message:
             # スレッドを作成して非同期で実行
             thread = threading.Thread(target=target)
             thread.start()
+
             return NormalMessage.create_message(
-                event,"正解！！ おめでとう！！\r\n「スコア」と入力するとあなたのスコアがわかります。「ランキング」でtop5がわかります。",
-        )
-        
+                event,
+                [
+                    "正解！！ おめでとう！！\r\n「スコア」と入力するとあなたのスコアがわかります。「ランキング」でtop5がわかります。",
+                    "チュートリアルは以上です。「一覧」と入力すると他の謎が解けます。",
+                ],
+            )
+
         return NormalMessage.create_message(
             event,
             "「一覧」と入力すると他のゲームが遊べます。",
