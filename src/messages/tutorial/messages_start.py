@@ -1,6 +1,6 @@
 from functools import partial
 from flask import g
-from messages.messages_image import Message as ImgMessage
+from src.messages.messages_image import Message as ImgMessage
 import threading
 
 
