@@ -28,7 +28,6 @@ from src.managers.user_state_manager import UserStateManager
 from src.services.handle_audiomessage_service import AudioMessageHandler
 from src.services.handle_message_service import HandleMessageService
 from src.commonclass.dict_not_notetion import DictDotNotation
-from src.services.schedule import sched
 from functools import partial, wraps
 from src.messages.messages_normal import Message as NormalMessage
 
@@ -285,8 +284,6 @@ def default_message(event):
 
 ## ボット起動コード
 if __name__ == "__main__":
-    if not sched.running:  # スケジューラが実行中でない場合のみ開始
-        sched.start()  # 追加
     ## ローカルでテストする時のために、`debug=True` にしておく
     app.run(host="0.0.0.0", port=8000, debug=True)
 
