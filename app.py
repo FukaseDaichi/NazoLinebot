@@ -83,6 +83,9 @@ def before_handler(func):
         ## stateの取得
         state = user_state_manager.get_user_state(user_id)
 
+        ## stateの表示
+        print(state)
+
         ## modeがないとき
         if state == None or "mode" not in state:
 

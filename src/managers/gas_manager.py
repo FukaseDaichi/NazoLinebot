@@ -77,7 +77,7 @@ class GASManager:
         """
         try:
             print(payload)
-            response = requests.post(self.base_url, json=payload)
+            response = requests.post(self.base_url, json=payload,timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -90,7 +90,7 @@ class GASManager:
         """
         try:
             print(payload)
-            response = requests.get(self.base_url, params=payload)
+            response = requests.get(self.base_url, params=payload,timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -104,9 +104,3 @@ if __name__ == "__main__":
     fetcher = GASManager(base_url)
     print(fetcher.get_user("whitefranc1"))
 
-    ## 登録
-    # 値を束縛した新しい関数を作成
-    target = partial(fetcher.register_user, "whitefranc1", None,"なにぬねの")
-    # スレッドを作成して非同期で実行
-    thread = threading.Thread(target=target)
-    thread.start()
