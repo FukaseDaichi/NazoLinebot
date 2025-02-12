@@ -2,15 +2,31 @@ import time
 
 
 class UserStateManager:
+    _instance = None
+    _initialized = False
+
+    def __new__(cls, *args, **kwargs):
+
+        if cls._instance is None:
+            cls._instance = super(UserStateManager, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self, default_ttl=3600, external_manager=None):
         """
         ユーザー状態管理クラス
         :param default_ttl: 状態のデフォルト有効期限（秒）
         :param external_manager: 外部依存（テスト用）
         """
+        # すでに初期化済みなら何もしない
+        if self._initialized:
+            return
+
         self.user_states = {}
         self.default_ttl = default_ttl
         self.external_manager = external_manager or self._default_external_manager
+
+        # 初期化完了を示すフラグを更新
+        self._initialized = True
 
     def _default_external_manager(self, user_id):
         """デフォルトの外部システム呼び出し（モック用）"""
@@ -77,7 +93,7 @@ class UserStateManager:
             return state
 
         # 外部依存から取得
-        print('スプレットシートから取得')
+        print("スプレットシートから取得")
         user = self.external_manager(user_id)
         print(user)
         user_name = user.get("name") if user and "name" in user else None

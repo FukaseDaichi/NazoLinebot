@@ -1,31 +1,28 @@
-from functools import partial
 import os
-import threading
 import requests
 
 
 class GASManager:
+    _instance = None
+    _initialized = False
+
+    def __new__(cls, base_url, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(GASManager, cls).__new__(cls)
+        return cls._instance
 
     def __init__(self, base_url):
-        """
-        Initialize the GASApiFetcher with the base URL of the GAS API.
-
-        :param base_url: str, the base URL of the GAS API
-        """
+        # すでに初期化済みなら何もしない
+        if self._initialized:
+            return
         self.base_url = base_url
         print(f"Initialized GASApiFetcher with base_url: {self.base_url}")
+        self._initialized = True
 
     def get_data(self, params):
-        """
-        Fetch data from the GAS API using the provided key and userId.
-
-        :param key: str, the key parameter for the API
-        :param user_id: str, the userId parameter for the API
-        :return: dict, the parsed JSON response from the API
-        """
         print(f"Fetching data with params: {params}")
         try:
-            response = requests.get(self.base_url, params=params)
+            response = requests.get(self.base_url, params=params, timeout=10)
             print(f"HTTP GET request sent. URL: {response.url}")
             response.raise_for_status()
             return response.json()
@@ -50,34 +47,25 @@ class GASManager:
         return data.get("message", None)
 
     def register_user(self, user_id, name=None, mode=None):
-        # ユーザー登録のためのペイロードを準備
         payload = {"key": "putuser", "userId": user_id}
         if name is not None:
             payload["name"] = name
         if mode is not None:
             payload["mode"] = mode
-        # GAS APIへのPOSTリクエストを送信
         self.post_method(payload)
 
     def start_game(self, title, user_id):
-        # ユーザー登録のためのペイロードを準備
         payload = {"key": "start", "title": title, "userId": user_id}
-        # GAS APIへのPOSTリクエストを送信
         self.post_method(payload)
 
     def end_game(self, title, user_id):
-        # ユーザー登録のためのペイロードを準備
         payload = {"key": "end", "title": title, "userId": user_id}
-        # GAS APIへのPOSTリクエストを送信
         self.post_method(payload)
 
     def post_method(self, payload):
-        """
-        GAS APIへのPOSTリクエストを送信します。
-        """
         try:
             print(payload)
-            response = requests.post(self.base_url, json=payload,timeout=10)
+            response = requests.post(self.base_url, json=payload, timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -85,12 +73,9 @@ class GASManager:
             return None
 
     def get_method(self, payload):
-        """
-        GAS APIへのGetリクエストを送信します。
-        """
         try:
             print(payload)
-            response = requests.get(self.base_url, params=payload,timeout=10)
+            response = requests.get(self.base_url, params=payload, timeout=10)
             response.raise_for_status()
             return response.json()
         except requests.exceptions.RequestException as e:
@@ -101,6 +86,6 @@ class GASManager:
 # Example usage
 if __name__ == "__main__":
     base_url = os.environ["GAS_API_URL"]
-    fetcher = GASManager(base_url)
-    print(fetcher.get_user("whitefranc1"))
-
+    manager1 = GASManager(base_url)
+    # 例として、get_userメソッドを呼び出す
+    print(manager1.get_user("whitefranc1"))
