@@ -27,7 +27,7 @@ class Message:
             g.user_id, {"user_name": user_input, "mode": "default"}
         )
         # 値を束縛した新しい関数を作成
-        target = partial(g.gas_manager.register_user, g.user_id, user_input)
+        target = partial(g.firebase_manager.register_user, g.user_id, user_input)
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target)
         thread.start()

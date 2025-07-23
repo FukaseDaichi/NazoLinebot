@@ -12,11 +12,11 @@ class Message:
         args[1]はmessageとする。
         """
         # 値を束縛した新しい関数を作成
-        target = partial(g.gas_manager.end_game, args[0], g.user_id)
+        target = partial(g.firebase_manager.end_game, args[0], g.user_id)
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target)
         thread.start()
-        
+
         return NormalMessage.create_message(
             event,
             args[1],

@@ -14,7 +14,7 @@ class Message:
             # 正解時
 
             # 記録追加
-            target = partial(g.gas_manager.end_game, "tutorial", g.user_id)
+            target = partial(g.firebase_manager.end_game, "tutorial", g.user_id)
             # スレッドを作成して非同期で実行
             thread = threading.Thread(target=target)
             thread.start()

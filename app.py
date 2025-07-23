@@ -23,7 +23,7 @@ import os
 from flask import Flask, g, request, abort, render_template
 import urllib3
 from src.services.handle_postback_service import HandlePostbackService
-from src.managers.gas_manager import GASManager
+from src.managers.firebase_manager import FirebaseManager
 from src.managers.user_state_manager import UserStateManager
 from src.services.handle_audiomessage_service import AudioMessageHandler
 from src.services.handle_message_service import HandleMessageService
@@ -39,7 +39,6 @@ load_dotenv()
 ## 環境変数を変数に割り当て
 CHANNEL_ACCESS_TOKEN = os.environ["CHANNEL_ACCESS_TOKEN"]
 CHANNEL_SECRET = os.environ["CHANNEL_SECRET"]
-GAS_API_URL = os.environ["GAS_API_URL"]
 
 ## Flask アプリのインスタンス化
 app = Flask(__name__, static_folder="resources")
@@ -54,8 +53,8 @@ with ApiClient(configuration) as api_client:
     line_bot_blob_api = MessagingApiBlob(api_client)
 
 ## グローバル変数の初期化
-gas_manager = GASManager(GAS_API_URL)
-user_state_manager = UserStateManager(external_manager=gas_manager.get_user)
+firebase_manager = FirebaseManager()
+user_state_manager = UserStateManager(external_manager=firebase_manager.get_user)
 
 ## handlerの初期化
 handle_message_service = HandleMessageService()
@@ -69,7 +68,7 @@ audio_handler = AudioMessageHandler(
 @app.before_request
 def before_request():
     g.user_state_manager = user_state_manager
-    g.gas_manager = gas_manager
+    g.firebase_manager = firebase_manager
 
 
 def before_handler(func):

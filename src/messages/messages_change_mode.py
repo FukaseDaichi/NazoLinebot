@@ -16,7 +16,7 @@ class Message:
 
         ## スプレットシートへ記録
         # 値を束縛した新しい関数を作成
-        target = partial(g.gas_manager.register_user, g.user_id, None, mode)
+        target = partial(g.firebase_manager.register_user, g.user_id, None, mode)
         # スレッドを作成して非同期で実行
         thread = threading.Thread(target=target)
         thread.start()

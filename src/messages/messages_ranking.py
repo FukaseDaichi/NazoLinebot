@@ -26,7 +26,7 @@ class Message:
         """
         args[0]はtitleとする。
         """
-        results = g.gas_manager.get_score(args[0])
+        results = g.firebase_manager.get_score(args[0])
 
         # キャッシュされたconfigからtitleを取得する
         config = Message._load_config()
@@ -34,18 +34,18 @@ class Message:
 
         records_top5 = []
         for score in results:
-            print(f"ユーザー名: {score['userName']}, スコア: {score['score']}")
+            print(f"ユーザー名: {score['name']}, スコア: {score['score']}")
             flex_box = FlexBox(
                 layout="horizontal",
                 contents=[
                     FlexText(
-                        text=score["userName"],
+                        text=score["name"],
                         size="sm",
                         color="#555555",
                         flex=0,
                     ),
                     FlexText(
-                        text=score["score"],
+                        text=str(score["score"]),
                         size="sm",
                         color="#111111",
                         align="end",

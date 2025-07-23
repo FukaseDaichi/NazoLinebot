@@ -11,6 +11,7 @@ from urllib.parse import quote
 
 MAX_LENGTH = 10
 
+
 class Message:
     @staticmethod
     def create_message(event, obj=None):

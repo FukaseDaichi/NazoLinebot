@@ -13,6 +13,7 @@ class Message:
                 user_name = g.user_state_manager.get_user_name(g.user_id)
                 return text.replace("{user_name}", user_name)
             return text
+
         # リストじゃない場合
         if type(obj) != list:
             obj = replace_user_name(obj)

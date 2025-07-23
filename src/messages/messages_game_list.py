@@ -108,7 +108,7 @@ class Message:
             ),
         )
 
-        carousel = FlexCarousel(contents=[tutorial,first])
+        carousel = FlexCarousel(contents=[tutorial, first])
 
         # FlexMessageを生成
         return FlexMessage(alt_text="脱出ゲーム一覧", contents=carousel)
