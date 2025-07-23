@@ -16,11 +16,24 @@ class FirebaseManager:
         if self._initialized:
             return
 
-        cred_path = os.environ.get("FIREBASE_CREDENTIALS_PATH")
-        if not cred_path:
-            raise ValueError("FIREBASE_CREDENTIALS_PATH environment variable not set.")
+        import base64
+        import json
 
-        cred = credentials.Certificate(cred_path)
+        cred_base64 = os.environ.get("FIREBASE_CREDENTIALS_BASE64")
+        if not cred_base64:
+            raise ValueError(
+                "FIREBASE_CREDENTIALS_BASE64 environment variable not set."
+            )
+
+        try:
+            cred_json_str = base64.b64decode(cred_base64).decode("utf-8")
+            cred_info = json.loads(cred_json_str)
+        except Exception as e:
+            raise ValueError(
+                f"Failed to decode or parse FIREBASE_CREDENTIALS_BASE64: {e}"
+            )
+
+        cred = credentials.Certificate(cred_info)
         firebase_admin.initialize_app(cred)
         self.db = firestore.client()
         self._initialized = True
