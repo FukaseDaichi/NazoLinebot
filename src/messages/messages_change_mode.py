@@ -14,7 +14,6 @@ class Message:
         ## 登録
         g.user_state_manager.set_user_state(g.user_id, {"mode": mode})
 
-        ## スプレットシートへ記録
         # 値を束縛した新しい関数を作成
         target = partial(g.firebase_manager.register_user, g.user_id, None, mode)
         # スレッドを作成して非同期で実行

@@ -1,6 +1,7 @@
 import os
 import firebase_admin
 from firebase_admin import credentials, firestore
+import time
 
 
 class FirebaseManager:
@@ -39,6 +40,17 @@ class FirebaseManager:
         self._initialized = True
         print("FirebaseManager initialized.")
 
+    def format_seconds_to_japanese_time(self, seconds):
+        """秒数（int）を「??分??秒」の文字列に変換する"""
+        if seconds is None:
+            return "記録なし"
+        minutes = seconds // 60
+        sec = seconds % 60
+        if minutes > 0:
+            return f"{minutes}分{sec}秒"
+        else:
+            return f"{sec}秒"
+
     def get_user(self, user_id):
         """ユーザー情報を取得する"""
         doc_ref = self.db.collection("users").document(user_id)
@@ -65,87 +77,82 @@ class FirebaseManager:
             doc_ref.set(data, merge=True)
 
     def start_game(self, title, user_id):
-        """ゲームの開始を記録する"""
-        doc_ref = self.db.collection("users").document(user_id)
-        new_game = {
-            "title": title,
-            "start": firestore.SERVER_TIMESTAMP,
-            "end": None,
-            "score": None,
-        }
-        doc_ref.update({"games": firestore.ArrayUnion([new_game])})
+        """ゲームを開始する（データが存在しない場合のみ）"""
+        doc_ref = self.db.collection(title).document(user_id)
+        doc = doc_ref.get()
+
+        if not doc.exists:
+            new_game = {
+                "title": title,
+                "start": int(time.time()),
+                "end": None,
+                "score": None,
+            }
+
+            doc_ref.set(new_game, merge=False)  # データがないときだけセット
 
     def end_game(self, title, user_id):
         """ゲームの終了を記録し、スコアを計算する"""
-        doc_ref = self.db.collection("users").document(user_id)
-        user_data = self.get_user(user_id)
-        if not user_data or "games" not in user_data:
+        doc_ref = self.db.collection(title).document(user_id)
+        doc = doc_ref.get()
+
+        # データが存在しない場合は何もしない
+        if not doc.exists:
             return
 
-        games = user_data["games"]
-        game_to_update = None
-        for game in reversed(games):  # 最後に追加されたものから探す
-            if game["title"] == title and game["end"] is None:
-                game_to_update = game
-                break
+        data = doc.to_dict()
+        start_time = data.get("start")
+        if start_time is None:
+            return  # startがなければスコア計算不可
 
-        if game_to_update:
-            start_time = game_to_update["start"]
-            end_time = firestore.SERVER_TIMESTAMP
+        end_time = int(time.time())
+        score = end_time - start_time  # 秒数で計算
 
-            # Firestoreのサーバータイムスタンプを一度書き込んでからでないと正確な計算ができない
-            # ここではまず終了時刻を記録する
-            game_to_update["end"] = end_time
-
-            # スコア計算ロジック（例：秒単位）
-            # 正確なスコア計算は、end_timeが確定した後（読み取り後）に行う必要がある
-            # ここでは仮にNoneとしておくか、別途バッチ処理などで計算する方が堅牢
-            # score = (end_time - start_time).total_seconds()
-            # game_to_update["score"] = score
-
-            doc_ref.update({"games": games})
+        # Firestoreにendとscoreを保存
+        doc_ref.update({"end": end_time, "score": score})
 
     def get_user_score(self, user_id, title):
-        """ユーザーの特定のゲームの最新スコアを取得する"""
-        user_data = self.get_user(user_id)
-        if not user_data or "games" not in user_data:
-            return None
-
-        user_games = [
-            g
-            for g in user_data["games"]
-            if g["title"] == title and g["score"] is not None
-        ]
-        if not user_games:
-            return None
-
-        # 最新のゲーム（startが最も新しい）のスコアを返す
-        latest_game = max(user_games, key=lambda x: x["start"])
-        return latest_game["score"]
+        """ユーザーの特定のゲームのスコアを取得する"""
+        doc_ref = self.db.collection(title).document(user_id)
+        doc = doc_ref.get()
+        if doc.exists:
+            data = doc.to_dict()
+            return self.format_seconds_to_japanese_time(data.get("score"))
+        return None
 
     def get_score(self, title):
         """特定のゲームの全ユーザーのスコアランキングを取得する"""
+        title_ref = self.db.collection(title)
+        title_docs = title_ref.stream()
+
         users_ref = self.db.collection("users")
-        docs = users_ref.stream()
-
         scores = []
-        for doc in docs:
-            user_data = doc.to_dict()
-            if "games" in user_data and "name" in user_data:
-                user_games = [
-                    g
-                    for g in user_data["games"]
-                    if g["title"] == title and g["score"] is not None
-                ]
-                if user_games:
-                    # ユーザーごとに最新のスコアを採用
-                    latest_game = max(user_games, key=lambda x: x["start"])
-                    scores.append(
-                        {"name": user_data["name"], "score": latest_game["score"]}
-                    )
 
-        # スコアで降順にソート
-        return sorted(scores, key=lambda x: x["score"], reverse=True)
+        for doc in title_docs:
+            game_data = doc.to_dict()
+            user_id = doc.id
+
+            # スコアが存在しない場合はスキップ
+            if game_data.get("score") is None:
+                continue
+
+            # ユーザー名をゲームデータから取得、なければusersコレクションから取得
+            name = ""
+            user_doc = users_ref.document(user_id).get()
+            if user_doc.exists:
+                name = user_doc.to_dict().get("name")
+            else:
+                name = "Unknown"
+
+            scores.append(
+                {
+                    "name": name,
+                    "score": self.format_seconds_to_japanese_time(game_data["score"]),
+                }
+            )
+
+        # スコアで昇順にソートし、最大5件を返す
+        return sorted(scores, key=lambda x: x["score"])[:5]
 
 
 if __name__ == "__main__":

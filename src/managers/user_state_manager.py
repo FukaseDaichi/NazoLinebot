@@ -93,7 +93,6 @@ class UserStateManager:
             return state
 
         # 外部依存から取得
-        print("スプレットシートから取得")
         user = self.external_manager(user_id)
         print(user)
         user_name = user.get("name") if user and "name" in user else None
