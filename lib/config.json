@@ -1,12 +1,28 @@
 {
-    "message_dicts": {
-        "default": "./lib/messages.json",
-        "first": "./lib/first/messages.json",
-        "tutorial": "./lib/tutorial/messages.json"
-    },
-    "title": {
-        "default": "デフォルト",
-        "first": "布団からの脱出",
-        "tutorial": "チュートリアル"
-    }
+    "games": [
+        {
+            "id": "default",
+            "path": "./lib/messages.json",
+            "isGame": false,
+            "title": null,
+            "image": null,
+            "description": null
+        },
+        {
+            "id": "tutorial",
+            "path": "./lib/tutorial/messages.json",
+            "isGame": true,
+            "title": "チュートリアル",
+            "image": "https://developers-resource.landpress.line.me/fx/clip/clip10.jpg",
+            "description": "チュートリアル脱出ゲーム。1分～"
+        },
+        {
+            "id": "first",
+            "path": "./lib/first/messages.json",
+            "isGame": true,
+            "title": "最初のゲーム",
+            "image": "https://developers-resource.landpress.line.me/fx/clip/clip10.jpg",
+            "description": "最初の脱出ゲーム"
+        }
+    ]
 }

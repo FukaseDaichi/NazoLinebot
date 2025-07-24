@@ -31,17 +31,24 @@ class HandleMessageService:
 
     def __load_message_dicts(self):
         """
-        メッセージ辞書をロードし、正規表現をコンパイル
+        config["games"]配列のidをdict_name、pathをファイルパスとして辞書を読み込む
         """
         self.__messagedicts = {}
-        for dict_name, dict_path in self.config["message_dicts"].items():
-            try:
-                with open(dict_path, mode="r", encoding="utf-8") as file:
-                    self.__messagedicts[dict_name] = json.load(file)
-            except json.JSONDecodeError as e:
-                raise ValueError(
-                    f"Invalid JSON format in message dictionary {dict_name}: {e}"
-                )
+        for game in self.config.get("games", []):
+            dict_name = game.get("id")
+            dict_path = game.get("path")
+            if dict_name and dict_path:
+                try:
+                    with open(dict_path, mode="r", encoding="utf-8") as file:
+                        self.__messagedicts[dict_name] = json.load(file)
+                except json.JSONDecodeError as e:
+                    raise ValueError(
+                        f"Invalid JSON format in message dictionary {dict_name}: {e}"
+                    )
+                except FileNotFoundError as e:
+                    raise ValueError(
+                        f"Message dictionary file not found for {dict_name}: {e}"
+                    )
 
     def generate_reply_message(self, event):
 
