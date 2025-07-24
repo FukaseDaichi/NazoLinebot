@@ -9,8 +9,8 @@ class Message:
         args[0]はtitleとする。
         """
         # 値を束縛した新しい関数を作成
-        result = g.firebase_manager.get_user_score(g.user_id, args[0])
-        if result == None:
+        score = g.firebase_manager.get_user_score(g.user_id, args[0])
+        if score == None:
             return NormalMessage.create_message(event, "スコアは登録されていません")
-        score = result["score"]
+
         return NormalMessage.create_message(event, f"あなたのスコアは{score}です。")
