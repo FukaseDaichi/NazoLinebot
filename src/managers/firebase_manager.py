@@ -105,6 +105,10 @@ class FirebaseManager:
         if start_time is None:
             return  # startがなければスコア計算不可
 
+        # scoreが既にあれば終了
+        if data.get("score"):
+            return
+
         end_time = int(time.time())
         score = end_time - start_time  # 秒数で計算
 
