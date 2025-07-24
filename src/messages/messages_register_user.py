@@ -32,7 +32,9 @@ class Message:
         thread = threading.Thread(target=target)
         thread.start()
 
-        messags = NormalMessage.create_message(event, f"{user_input}で登録しました。")
+        messags = NormalMessage.create_message(
+            event, f"{user_input}で登録しました。一覧からゲームを選択してください！"
+        )
         messags.append(GameListMessage.create_message(event))
 
-        return NormalMessage.create_message(event, f"{user_input}で登録しました。")
+        return messags
