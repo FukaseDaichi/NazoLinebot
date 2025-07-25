@@ -1,9 +1,11 @@
 
 #  Code Assistant Workspace Context
 
+`.gemini/01_development_docs`配下を参考にして作成してほしい。
+
 ## About This Project
 
-This project is a LINE Bot application built with Python and Flask. It's designed to provide interactive experiences, including puzzles and games, to LINE users. The bot can handle various types of user interactions, such as text messages, audio messages (with speech-to-text capabilities), and postback events from rich menus. It manages user state and interacts with external services like Google Apps Script (GAS) for data handling.
+This project is a LINE Bot application built with Python and Flask. It's designed to provide interactive experiences, including puzzles and games, to LINE users. The bot can handle various types of user interactions, such as text messages, audio messages (with speech-to-text capabilities), and postback events from rich menus. It manages user state and interacts with Firebase for data handling. The bot's behavior is configured through JSON files in the `lib` directory.
 
 ## Key Technologies
 
@@ -15,52 +17,18 @@ This project is a LINE Bot application built with Python and Flask. It's designe
 - **Environment Variables:** `python-dotenv`
 - **Database:** Firebase (Firestore)
 
-## Database (Firestore) Structure
+## Project Structure
 
-With the transition to Firebase, the following Firestore collection structure is proposed to replace the existing GAS-based data management:
-
-// Firestore構造（構造定義の記述）
-
-Collection: users
-├── Document ID: <line_user_id>
-    ├── name: string        // 例: "山田太郎"
-    ├── mode: string        // 例: "easy"
-    ├── games: array        // ゲーム履歴の配列
-        ├── title: string   // ゲームタイトル
-        ├── score: number   // スコア
-        ├── start: timestamp // 開始時刻
-        ├── end: timestamp   // 終了時刻
-
-
-
-The project is organized into several directories, each with a specific responsibility:
-
-```
-NazoLinebot/
-├── app.py                  # Main application file (Flask routes, LINE event handlers)
-├── requirements.txt        # Python dependencies
-├── .gitignore
-├── README.md
-├── .venv/                  # Python virtual environment
-├── lib/                    # Configuration files (JSON), and other libraries like the Vosk model
-│   ├── config.json
-│   ├── messages.json
-│   └── model/
-├── resources/              # Static assets like images
-├── src/                    # Main source code
-│   ├── commonclass/        # Utility classes
-│   ├── managers/           # Handles user state and external API (GAS) interactions
-│   ├── messages/           # Modules for creating different types of LINE messages
-│   └── services/           # Business logic for handling LINE webhook events
-└── templates/              # HTML templates for Flask
-```
-
-- **`app.py`**: The entry point of the application. It initializes the Flask app, sets up LINE Bot SDK handlers, and defines the main webhook endpoint (`/callback`).
-- **`src/services`**: Contains modules that handle the core logic for different event types (e.g., `handle_message_service.py`, `handle_postback_service.py`).
-- **`src/managers`**: Manages the user's state (e.g., `user_state_manager.py`) and communication with external APIs like Google Apps Script (`gas_manager.py`).
-- **`src/messages`**: Responsible for constructing the various kinds of reply messages sent to the user.
-- **`lib/`**: Stores configuration data in JSON files and contains the Vosk model for speech recognition.
-- **`templates/`**: Contains the `index.html` file served at the root URL.
+- **`app.py`**: The main Flask application file.
+- **`src/`**: Contains the core application logic.
+  - **`managers/`**: Manages user state and Firebase interactions.
+  - **`services/`**: Handles different types of LINE events (message, postback, etc.).
+  - **`messages/`**: Defines the bot's responses to user messages.
+  - **`commonclass/`**: Common classes used across the application.
+- **`lib/`**: Contains JSON files that define the bot's configuration, messages, and postback actions. See `[.gemini/01_development_docs/03_lib_definition_files.md](.gemini/01_development_docs/03_lib_definition_files.md)` for more details.
+- **`templates/`**: HTML templates for the web interface.
+- **`resources/`**: Static assets like images.
+- **`.gemini/`**: Contains documentation for the Gemini assistant.
 
 ## How to Run
 
@@ -78,8 +46,6 @@ NazoLinebot/
       CHANNEL_SECRET="your_line_channel_secret"
       FIREBASE_CREDENTIALS_PATH="path/to/your/firebase-credentials.json"
       ```
-
-      *Note: The `GAS_API_URL` will no longer be needed after the migration.*
 
 3.  **Run the development server:**
     ```bash

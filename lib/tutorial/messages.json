@@ -6,6 +6,5 @@
   "名前": "おしいっ！",
   "なまえ": "おしいっ！",
   "ネーム": "おしいっ！",
-  "一覧": "src.messages.messages_game_list",
-  ".*": "src.messages.messages_game_list"
+  "一覧": "src.messages.messages_game_list"
 }
