@@ -6,20 +6,11 @@ from linebot.v3.messaging import (
     FlexText,
     FlexSeparator,
 )
-import json
+
+from src.commonclass.game_config import GAME_DATA
 
 
 class Message:
-
-    # クラス変数としてconfigをキャッシュ
-    _config_cache = None
-
-    @staticmethod
-    def _load_config():
-        if Message._config_cache is None:
-            with open("lib/config.json", "r", encoding="utf-8") as f:
-                Message._config_cache = json.load(f)
-        return Message._config_cache
 
     @staticmethod
     def create_message(event, args=None):
@@ -28,9 +19,10 @@ class Message:
         """
         results = g.firebase_manager.get_score(args[0])
 
-        # キャッシュされたconfigからtitleを取得する
-        config = Message._load_config()
-        title = config["title"].get(args[0], "デフォルト")
+        # args[0]のidに該当するゲームのtitleを取得
+        title = next(
+            (game["title"] for game in GAME_DATA if game["id"] == args[0]), "デフォルト"
+        )
 
         records_top5 = []
         for score in results:
