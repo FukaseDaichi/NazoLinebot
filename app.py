@@ -30,6 +30,7 @@ from src.services.handle_message_service import HandleMessageService
 from src.commonclass.dict_not_notetion import DictDotNotation
 from functools import partial, wraps
 from src.messages.messages_normal import Message as NormalMessage
+from src.services.schedule import run_schedule
 
 ## .env ファイル読み込み
 from dotenv import load_dotenv
@@ -286,6 +287,10 @@ def default_message(event):
 
 ## ボット起動コード
 if __name__ == "__main__":
+    # スケジューラを別スレッドで起動
+    scheduler_thread = threading.Thread(target=run_schedule, daemon=True)
+    scheduler_thread.start()
+
     ## ローカルでテストする時のために、`debug=True` にしておく
     app.run(host="0.0.0.0", port=8000, debug=True)
 
