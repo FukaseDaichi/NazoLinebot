@@ -13,7 +13,7 @@
             "path": "./lib/tutorial/messages.json",
             "isGame": true,
             "title": "チュートリアル",
-            "image": "https://developers-resource.landpress.line.me/fx/clip/clip10.jpg",
+            "image": "https://nazolinebot.onrender.com/resources/img/tutorial/start.png",
             "description": "チュートリアル脱出ゲーム。1分～"
         },
         {
@@ -21,7 +21,7 @@
             "path": "./lib/first/messages.json",
             "isGame": true,
             "title": "最初のゲーム",
-            "image": "https://developers-resource.landpress.line.me/fx/clip/clip10.jpg",
+            "image": "https://nazolinebot.onrender.com/resources/img/tutorial/start.png",
             "description": "最初の脱出ゲーム"
         }
     ]
