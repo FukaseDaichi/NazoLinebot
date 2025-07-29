@@ -22,7 +22,7 @@ def log_system_usage():
 def run_schedule():
     """スケジュールタスクを実行する"""
     # 4分ごとにlog_system_usageを実行
-    schedule.every(4).minutes.do(log_system_usage)
+    schedule.every(2).minutes.do(log_system_usage)
 
     logging.info("Scheduler started. Will log system usage every 4 minutes.")
 
