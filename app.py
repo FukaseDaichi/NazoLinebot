@@ -287,12 +287,11 @@ def default_message(event):
 
 ## ボット起動コード
 if __name__ == "__main__":
-    # スケジューラを別スレッドで起動
+    # スケジューラを別スレッドで起動（ローカルテスト用）
     scheduler_thread = threading.Thread(target=run_schedule, daemon=True)
     scheduler_thread.start()
 
     ## ローカルでテストする時のために、`debug=True` にしておく
-    port = int(os.environ.get("PORT", 8000))
     app.run(host="0.0.0.0", port=8000, debug=True)
 
 

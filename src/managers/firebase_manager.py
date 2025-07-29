@@ -157,14 +157,3 @@ class FirebaseManager:
 
         # スコアで昇順にソートし、最大5件を返す
         return sorted(scores, key=lambda x: x["score"])[:5]
-
-
-if __name__ == "__main__":
-    # Example usage:
-    # 環境変数の設定が必要
-    # os.environ["FIREBASE_CREDENTIALS_PATH"] = "path/to/your/firebase-credentials.json"
-    # fb_manager = FirebaseManager()
-    # fb_manager.register_user("test_user_id", name="Test User", mode="easy")
-    # user_info = fb_manager.get_user("test_user_id")
-    # print(user_info)
-    pass

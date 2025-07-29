@@ -44,7 +44,8 @@ This project is a LINE Bot application built with Python and Flask. It's designe
       ```
       CHANNEL_ACCESS_TOKEN="your_line_channel_access_token"
       CHANNEL_SECRET="your_line_channel_secret"
-      FIREBASE_CREDENTIALS_PATH="path/to/your/firebase-credentials.json"
+      FIREBASE_CREDENTIALS_BASE64="base64 json-file"
+      json"
       ```
 
 3.  **Run the development server:**
